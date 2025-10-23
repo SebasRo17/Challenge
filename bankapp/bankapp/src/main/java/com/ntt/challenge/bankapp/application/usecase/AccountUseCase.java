@@ -59,7 +59,7 @@ public class AccountUseCase implements AccountService {
     public Mono<Account> updateAccount(String accountNumber, Account accountDetails) {
         log.info("Updating account with number: {}", accountNumber);
         return Mono.fromCallable(() -> {
-            Account account = accountJpaRepository.findAccountByNumber(accountNumber)
+            Account account = accountJpaRepository.findByAccountNumber(accountNumber)
                     .orElseThrow(() -> new RuntimeException("Account not found"));
 
             account.setAccountType(accountDetails.getAccountType());
@@ -79,7 +79,7 @@ public class AccountUseCase implements AccountService {
     }
 
     @Override
-    public Mono<Account> findByAccountByCustomerId(Long customerId) {
+    public Flux<Account> findAccountsByCustomerId(Long customerId) {
         log.info("Finding account by customer ID: {}", customerId);
         return Flux.defer(() -> Flux.fromIterable(accountJpaRepository.findByCustomer_CustomerId(customerId)))
                 .subscribeOn(Schedulers.boundedElastic());

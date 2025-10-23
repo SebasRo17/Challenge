@@ -36,7 +36,7 @@ public class MovementUseCase implements MovementService {
     public Flux<Movement> findMovementsByDateRange(Long customerId, LocalDate startDate, LocalDate endDate) {
         log.info("Finding movements for customer ID: {} from {} to {}", customerId, startDate, endDate);
         return Flux.defer(() -> Flux.fromIterable( // llamada al Query
-                movementJpaRepository.findMovementsByCustomerIdAndDateRange(customerId, startDate, endDate)))
+                movementJpaRepository.findByCustomerAndDateRange(customerId, startDate, endDate)))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 

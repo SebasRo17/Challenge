@@ -23,5 +23,5 @@ public interface MovementJpaRepository extends JpaRepository<Movement, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
 
-    Optional<Movement> findTopByAccount_AccountIdOrderByDateDesc(Long accountId);
+    Optional<Movement> findTopByAccount_AccountNumberOrderByDateDesc(String accountNumber);
 }
