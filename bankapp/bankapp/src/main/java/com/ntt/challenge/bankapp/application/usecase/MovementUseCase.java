@@ -1,12 +1,15 @@
-package com.banco.challenge.application.usecase;
+package com.ntt.challenge.bankapp.application.usecase;
 
-import com.banco.challenge.domain.exception.InsufficientBalanceException; 
-import com.banco.challenge.domain.model.Account;
-import com.banco.challenge.domain.model.Movement;
-import com.banco.challenge.domain.service.MovementService;
-import com.banco.challenge.infrastructure.repository.AccountJpaRepository;
-import com.banco.challenge.infrastructure.repository.MovementJpaRepository;
+import com.ntt.challenge.bankapp.domain.exception.InsufficientBalanceException;
+import com.ntt.challenge.bankapp.domain.model.Account;
+import com.ntt.challenge.bankapp.domain.model.Movement;
+import com.ntt.challenge.bankapp.domain.service.MovementService;
+import com.ntt.challenge.bankapp.infrastructure.repository.AccountJpaRepository;
+import com.ntt.challenge.bankapp.infrastructure.repository.MovementJpaRepository;
+
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -17,6 +20,8 @@ import java.time.LocalDate;
 
 @Slf4j
 @Service
+@Getter
+@Setter
 @RequiredArgsConstructor
 
 public class MovementUseCase implements MovementService {
@@ -30,8 +35,8 @@ public class MovementUseCase implements MovementService {
     @Override
     public Flux<Movement> findMovementsByDateRange(Long customerId, LocalDate startDate, LocalDate endDate) {
         log.info("Finding movements for customer ID: {} from {} to {}", customerId, startDate, endDate);
-        return Flux.defer(() -> Flux.fromIterable( //llamada al Query
-                    movementJpaRepository.findMovementsByCustomerIdAndDateRange(customerId, startDate, endDate)))
+        return Flux.defer(() -> Flux.fromIterable( // llamada al Query
+                movementJpaRepository.findMovementsByCustomerIdAndDateRange(customerId, startDate, endDate)))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -41,14 +46,15 @@ public class MovementUseCase implements MovementService {
 
         return Mono.fromCallable(() -> {
 
-            if(movement.getValue() <= 0){
+            if (movement.getValue() <= 0) {
                 throw new IllegalArgumentException("Valor del movimiento debe ser mayor a cero");
             }
 
             Account account = accountJpaRepository.findById(movement.getAccount().getAccountNumber())
                     .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
 
-            double currentBalance = movementJpaRepository.findTopByAccount_AccountNumberOrderByDateDesc(account.getAccountNumber())
+            double currentBalance = movementJpaRepository
+                    .findTopByAccount_AccountNumberOrderByDateDesc(account.getAccountNumber())
                     .map(Movement::getBalance)
                     .orElse(account.getInitialBalance());
 
@@ -58,17 +64,17 @@ public class MovementUseCase implements MovementService {
 
             if (DEBIT_TYPE.equalsIgnoreCase(movement.getMovementType())) {
 
-                //REGLA f3
+                // REGLA f3
                 if (currentBalance < movement.getValue()) {
-                    log.warn("Intento de sobregiro en cuenta {}. Saldo: {}, Retiro: {}", 
+                    log.warn("Intento de sobregiro en cuenta {}. Saldo: {}, Retiro: {}",
                             account.getAccountNumber(), currentBalance, movement.getValue());
                     throw new InsufficientBalanceException("Saldo no disponible");
                 }
 
-                //REGLA f2
+                // REGLA f2
                 newBalance = currentBalance - movement.getValue();
             }
-            //REGLA f2
+            // REGLA f2
             else if (CREDIT_TYPE.equalsIgnoreCase(movement.getMovementType())) {
                 newBalance = currentBalance + movement.getValue();
             } else {
@@ -79,7 +85,7 @@ public class MovementUseCase implements MovementService {
             movement.setDate(LocalDate.now());
             movement.setBalance(newBalance);
 
-            log.info("New balance for account {} after {} of {}: {}", 
+            log.info("New balance for account {} after {} of {}: {}",
                     account.getAccountNumber(), movement.getMovementType(), movement.getValue(), newBalance);
             return movementJpaRepository.save(movement);
         }).subscribeOn(Schedulers.boundedElastic());

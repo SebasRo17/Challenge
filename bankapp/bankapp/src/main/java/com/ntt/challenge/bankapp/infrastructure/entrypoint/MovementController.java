@@ -1,7 +1,7 @@
-package com.banco.challenge.infrastructure.entrypoint;
+package com.ntt.challenge.bankapp.infrastructure.entrypoint;
 
-import com.banco.challenge.domain.model.Movement;
-import com.banco.challenge.domain.service.MovementService;
+import com.ntt.challenge.bankapp.domain.model.Movement;
+import com.ntt.challenge.bankapp.domain.service.MovementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/movements") 
+@RequestMapping("/api/v1/movements")
 @RequiredArgsConstructor
 
 public class MovementController {

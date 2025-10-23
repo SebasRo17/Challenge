@@ -1,7 +1,7 @@
-package com.banco.challenge.infrastructure.entrypoint;
+package com.ntt.challenge.bankapp.infrastructure.entrypoint;
 
-import com.banco.challenge.domain.model.Customer;
-import com.banco.challenge.domain.service.CustomerService; 
+import com.ntt.challenge.bankapp.domain.model.Customer;
+import com.ntt.challenge.bankapp.domain.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

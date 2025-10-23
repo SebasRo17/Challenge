@@ -1,11 +1,14 @@
-package com.banco.challenge.application.usecase;
+package com.ntt.challenge.bankapp.application.usecase;
 
-import com.banco.challenge.domain.model.Account;
-import com.banco.challenge.domain.model.Customer;
-import com.banco.challenge.domain.service.AccountService;
-import com.banco.challenge.infrastructure.repository.AccountJpaRepository;
-import com.banco.challenge.infrastructure.repository.CustomerJpaRepository; 
+import com.ntt.challenge.bankapp.domain.model.Customer;
+import com.ntt.challenge.bankapp.domain.service.AccountService;
+import com.ntt.challenge.bankapp.infrastructure.repository.AccountJpaRepository;
+import com.ntt.challenge.bankapp.infrastructure.repository.CustomerJpaRepository;
+import com.ntt.challenge.bankapp.domain.model.Account;
+
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -14,6 +17,8 @@ import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Service
+@Getter
+@Setter
 @RequiredArgsConstructor
 
 public class AccountUseCase implements AccountService {
@@ -29,17 +34,17 @@ public class AccountUseCase implements AccountService {
     }
 
     @Override
-    public Mono<Account> findAccountByNumber(String accountNumber) {
+    public Mono<Account> findByAccountNumber(String accountNumber) {
         log.info("Finding account by number: {}", accountNumber);
-        return Mono.fromCallable(() -> accountJpaRepository.findAccountByNumber(accountNumber)
-                    .orElseThrow(() -> new RuntimeException("Account not found")))
+        return Mono.fromCallable(() -> accountJpaRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found")))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
     public Mono<Account> saveAccount(Account account) {
         log.info("Saving new account: {}", account);
-        return Mono.fromCallable(()-> {
+        return Mono.fromCallable(() -> {
 
             Customer customer = customerJpaRepository.findById(account.getCustomer().getCustomerId())
                     .orElseThrow(() -> new RuntimeException("Customer not found"));

@@ -1,7 +1,7 @@
-package com.banco.challenge.infrastructure.entrypoint;
+package com.ntt.challenge.bankapp.infrastructure.entrypoint;
 
-import com.banco.challenge.domain.model.Account;
-import com.banco.challenge.domain.service.AccountService;
+import com.ntt.challenge.bankapp.domain.model.Account;
+import com.ntt.challenge.bankapp.domain.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,7 @@ public class AccountController {
     @GetMapping("/{accountNumber}")
     public Mono<Account> getAccountByNumber(@PathVariable String accountNumber) {
         log.info("GET /api/v1/accounts/{}", accountNumber);
-        return accountService.findAccountByNumber(accountNumber);
+        return accountService.findByAccountNumber(accountNumber);
     }
 
     @PostMapping

@@ -8,7 +8,8 @@ import java.util.Optional;
 import java.util.List;
 
 @Repository
-public interface AccountJpaRepository extends JpaRepository<Account, Long> {
+public interface AccountJpaRepository extends JpaRepository<Account, String> {
     Optional<Account> findByAccountNumber(String accountNumber);
+
     List<Account> findByCustomer_CustomerId(Long customerId);
 }

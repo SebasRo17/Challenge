@@ -1,6 +1,6 @@
-package com.banco.challenge.infrastructure.config;
+package com.ntt.challenge.bankapp.infrastructure.config;
 
-import com.banco.challenge.domain.exception.InsufficientBalanceException;
+import com.ntt.challenge.bankapp.domain.exception.InsufficientBalanceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,5 +28,5 @@ public class GlobalExceptionHandler {
     public Map<String, String> handleGenericException(RuntimeException ex) {
         log.error("Error inesperado en la aplicación: {}", ex.getMessage(), ex);
         return Map.of("error", "Error Interno", "mensaje", "Ocurrió un error inesperado, contacte al admin.");
-}
+    }
 }

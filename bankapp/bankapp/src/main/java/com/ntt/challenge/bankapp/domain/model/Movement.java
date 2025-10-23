@@ -1,7 +1,7 @@
 package com.ntt.challenge.bankapp.domain.model;
 
 import jakarta.persistence.*;
-import lambok.Getter;
+import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -18,13 +18,13 @@ public class Movement {
     private Long movementId;
 
     private LocalDate date;
-    private String movementType; //Puede ser "DEBIT" o "CREDIT"
+    private String movementType; // Puede ser "DEBIT" o "CREDIT"
     private Double value;
     private Double balance;
 
-    //Relacion muchos a uno con Account N-1
+    // Relacion muchos a uno con Account N-1
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_number") //Clave foranea
+    @JoinColumn(name = "account_number") // Clave foranea
     @JsonBackReference
     private Account account;
 }

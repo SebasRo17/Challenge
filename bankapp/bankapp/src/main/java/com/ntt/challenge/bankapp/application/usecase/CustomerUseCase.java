@@ -1,9 +1,12 @@
 package com.ntt.challenge.bankapp.application.usecase;
 
-import com.banco.challenge.domain.model.Customer;
-import com.banco.challenge.domain.service.CustomerService;
-import com.banco.challenge.infrastructure.repository.CustomerJpaRepository;
+import com.ntt.challenge.bankapp.domain.model.Customer;
+import com.ntt.challenge.bankapp.domain.service.CustomerService;
+import com.ntt.challenge.bankapp.infrastructure.repository.CustomerJpaRepository;
+
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j; // importacion para logs
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -12,6 +15,8 @@ import reactor.core.scheduler.Schedulers;
 
 @Slf4j // anotacion para logs
 @Service
+@Getter
+@Setter
 @RequiredArgsConstructor
 
 public class CustomerUseCase implements CustomerService {
@@ -28,7 +33,7 @@ public class CustomerUseCase implements CustomerService {
     public Mono<Customer> findCustomerById(Long customerId) {
         log.info("Finding customer by ID: {}", customerId); // log
         return Mono.fromCallable(() -> customerJpaRepository.findById(customerId)
-                    .orElseThrow(() -> new RuntimeException("Customer not found")))
+                .orElseThrow(() -> new RuntimeException("Customer not found")))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -40,16 +45,16 @@ public class CustomerUseCase implements CustomerService {
     }
 
     @Override
-    public Mono<Customer> updateCustomer(Long customerId, Customer customer) {
+    public Mono<Customer> updateCustomer(Long customerId, Customer customerDetails) {
         log.info("Updating customer with ID: {}", customerId); // log
         return Mono.fromCallable(() -> {
             Customer customer = customerJpaRepository.findById(customerId)
                     .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-            customer.setName(customer.getName());
-            customer.setAddress(customer.getAddress());
-            customer.setPhone(customer.getPhone());
-            customer.setStatus(customer.getStatus());
+            customer.setName(customerDetails.getName());
+            customer.setAddress(customerDetails.getAddress());
+            customer.setPhone(customerDetails.getPhone());
+            customer.setStatus(customerDetails.getStatus());
 
             return customerJpaRepository.save(customer);
         }).subscribeOn(Schedulers.boundedElastic());
@@ -67,7 +72,7 @@ public class CustomerUseCase implements CustomerService {
     public Mono<Customer> findByIdentification(String identification) {
         log.info("Finding customer by identification: {}", identification); // log
         return Mono.fromCallable(() -> customerJpaRepository.findByIdentification(identification)
-                    .orElseThrow(() -> new RuntimeException("Customer not found")));
+                .orElseThrow(() -> new RuntimeException("Customer not found")))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 }

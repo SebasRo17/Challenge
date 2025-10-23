@@ -6,9 +6,14 @@ import reactor.core.publisher.Flux;
 
 public interface AccountService {
     Flux<Account> findAllAccounts();
-    Mono<Account> findAccountByNumber(String accountNumber);
+
+    Mono<Account> findByAccountNumber(String accountNumber);
+
     Mono<Account> saveAccount(Account account);
+
     Mono<Account> updateAccount(String accountNumber, Account account);
+
     Mono<Void> deleteAccount(String accountNumber);
-    Mono<Account> findByAccountByCustomerId(Long customerId);
+
+    Flux<Account> findAccountsByCustomerId(Long customerId);
 }
