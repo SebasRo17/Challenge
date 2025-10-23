@@ -3,6 +3,9 @@ package com.ntt.challenge.bankapp.domain.model;
 import jakarta.persistence.*;
 import lambok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.List;   
 
 @Getter
 @Setter
@@ -19,4 +22,15 @@ public class Account {
     private String accountType;
     private Double initialBalance;
     private Boolean status;
+
+    //Relacion muchos a uno con Customer N-1
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id") //Clave foranea
+    @JsonBackReference
+    private Customer customer;
+
+    //Relacion uno a muchos con Movement 1-N
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Movement> movements;
 }

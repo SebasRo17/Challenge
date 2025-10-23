@@ -3,6 +3,8 @@ package com.ntt.challenge.bankapp.domain.model;
 import jakarta.persistence.*;
 import lambok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,4 +21,9 @@ public class Customer extends Person {//Herencia
 
     @Column(name = "status") 
     private Boolean status;
+
+    //Relacion uno a muchos con Account 1-N
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Account> accounts;
 }
