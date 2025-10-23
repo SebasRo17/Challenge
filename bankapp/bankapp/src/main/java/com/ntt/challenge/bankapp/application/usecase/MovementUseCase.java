@@ -1,0 +1,87 @@
+package com.banco.challenge.application.usecase;
+
+import com.banco.challenge.domain.exception.InsufficientBalanceException; 
+import com.banco.challenge.domain.model.Account;
+import com.banco.challenge.domain.model.Movement;
+import com.banco.challenge.domain.service.MovementService;
+import com.banco.challenge.infrastructure.repository.AccountJpaRepository;
+import com.banco.challenge.infrastructure.repository.MovementJpaRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
+import java.time.LocalDate;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+
+public class MovementUseCase implements MovementService {
+
+    private final MovementJpaRepository movementJpaRepository;
+    private final AccountJpaRepository accountJpaRepository;
+
+    private static final String DEBIT_TYPE = "Débito";
+    private static final String CREDIT_TYPE = "Crédito";
+
+    @Override
+    public Flux<Movement> findMovementsByDateRange(Long customerId, LocalDate startDate, LocalDate endDate) {
+        log.info("Finding movements for customer ID: {} from {} to {}", customerId, startDate, endDate);
+        return Flux.defer(() -> Flux.fromIterable( //llamada al Query
+                    movementJpaRepository.findMovementsByCustomerIdAndDateRange(customerId, startDate, endDate)))
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    @Override
+    public Mono<Movement> saveMovement(Movement movement) {
+        log.info("Saving new movement: {}", movement);
+
+        return Mono.fromCallable(() -> {
+
+            if(movement.getValue() <= 0){
+                throw new IllegalArgumentException("Valor del movimiento debe ser mayor a cero");
+            }
+
+            Account account = accountJpaRepository.findById(movement.getAccount().getAccountNumber())
+                    .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+            double currentBalance = movementJpaRepository.findTopByAccount_AccountNumberOrderByDateDesc(account.getAccountNumber())
+                    .map(Movement::getBalance)
+                    .orElse(account.getInitialBalance());
+
+            log.info("Current balance for account {}: {}", account.getAccountNumber(), currentBalance);
+
+            double newBalance;
+
+            if (DEBIT_TYPE.equalsIgnoreCase(movement.getMovementType())) {
+
+                //REGLA f3
+                if (currentBalance < movement.getValue()) {
+                    log.warn("Intento de sobregiro en cuenta {}. Saldo: {}, Retiro: {}", 
+                            account.getAccountNumber(), currentBalance, movement.getValue());
+                    throw new InsufficientBalanceException("Saldo no disponible");
+                }
+
+                //REGLA f2
+                newBalance = currentBalance - movement.getValue();
+            }
+            //REGLA f2
+            else if (CREDIT_TYPE.equalsIgnoreCase(movement.getMovementType())) {
+                newBalance = currentBalance + movement.getValue();
+            } else {
+                throw new IllegalArgumentException("Tipo de movimiento inválido");
+            }
+
+            movement.setAccount(account);
+            movement.setDate(LocalDate.now());
+            movement.setBalance(newBalance);
+
+            log.info("New balance for account {} after {} of {}: {}", 
+                    account.getAccountNumber(), movement.getMovementType(), movement.getValue(), newBalance);
+            return movementJpaRepository.save(movement);
+        }).subscribeOn(Schedulers.boundedElastic());
+    }
+}
