@@ -16,7 +16,7 @@ public interface MovementJpaRepository extends JpaRepository<Movement, Long> {
     @Query("SELECT m FROM Movement m " +
             "JOIN m.account a " +
             "JOIN a.customer c " +
-            "WHERE c.customerId = :customerId AND m.data BETWEEN :startDate AND :endDate" +
+            "WHERE c.customerId = :customerId AND m.date BETWEEN :startDate AND :endDate " +
             "ORDER BY m.date ASC")
     List<Movement> findByCustomerAndDateRange(
             @Param("customerId") Long customerId,
