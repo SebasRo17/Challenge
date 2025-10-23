@@ -1,0 +1,12 @@
+openapi: 3.0.1
+info:
+  title: API de Banco Challenge
+  description: API para manejar Clientes, Cuentas y Movimientos.
+  version: "1.0"
+servers:
+  - url: http://localhost:8080/api/v1
+
+paths:
+
+components:
+  schemas:
