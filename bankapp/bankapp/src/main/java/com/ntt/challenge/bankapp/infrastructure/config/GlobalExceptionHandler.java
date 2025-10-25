@@ -1,5 +1,6 @@
 package com.ntt.challenge.bankapp.infrastructure.config;
 
+import com.ntt.challenge.bankapp.domain.exception.AccountTypeAlreadyExistsException;
 import com.ntt.challenge.bankapp.domain.exception.InsufficientBalanceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -54,6 +55,13 @@ public class GlobalExceptionHandler {
         return Map.of(
                 "error", "Datos de Entrada Inválidos",
                 "mensajes", errors);
+    }
+
+    @ExceptionHandler(AccountTypeAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleAccountTypeExists(AccountTypeAlreadyExistsException ex) {
+        log.warn("Conflicto de regla de negocio: {}", ex.getMessage());
+        return Map.of("error", "Regla de Negocio Rota", "mensaje", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

@@ -5,6 +5,7 @@ import com.ntt.challenge.bankapp.domain.service.AccountService;
 import com.ntt.challenge.bankapp.infrastructure.repository.AccountJpaRepository;
 import com.ntt.challenge.bankapp.infrastructure.repository.CustomerJpaRepository;
 import com.ntt.challenge.bankapp.domain.model.Account;
+import com.ntt.challenge.bankapp.domain.exception.AccountTypeAlreadyExistsException;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,16 @@ public class AccountUseCase implements AccountService {
 
             Customer customer = customerJpaRepository.findById(account.getCustomer().getCustomerId())
                     .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+            boolean exists = accountJpaRepository.existsByCustomer_CustomerIdAndAccountType(
+                    customer.getCustomerId(),
+                    account.getAccountType());
+            if (exists) {
+                log.warn("Intento de crear cuenta con tipo duplicado: {} para el cliente ID: {}",
+                        account.getAccountType(), customer.getCustomerId());
+                throw new AccountTypeAlreadyExistsException(
+                        "El cliente ya posee una cuenta de tipo '" + account.getAccountType() + "'");
+            }
 
             account.setCustomer(customer);
 

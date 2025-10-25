@@ -11,5 +11,7 @@ import java.util.List;
 public interface AccountJpaRepository extends JpaRepository<Account, String> {
     Optional<Account> findByAccountNumber(String accountNumber);
 
+    boolean existsByCustomer_CustomerIdAndAccountType(Long customerId, String accountType);
+
     List<Account> findByCustomer_CustomerId(Long customerId);
 }
