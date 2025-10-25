@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 @Getter
 @Setter
@@ -17,6 +19,8 @@ public class Customer extends Person {// Herencia
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Generacion automatica del id
     private Long customerId;
 
+    @NotBlank(message = "El password no puede estar vacio")
+    @Pattern(regexp = "^[0-9]+$", message = "La contraseña debe contener solo números")
     private String password;
 
     @Column(name = "status")

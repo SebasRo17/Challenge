@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.bind.support.WebExchangeBindException;
+import java.util.stream.Collectors;
 
 import java.util.Map;
 
@@ -34,6 +36,24 @@ public class GlobalExceptionHandler {
         return Map.of(
                 "error", "Conflicto de Datos",
                 "mensaje", mensaje);
+    }
+
+    @ExceptionHandler(WebExchangeBindException.class) // En WebFlux se llama así
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleValidationExceptions(WebExchangeBindException ex) {
+        log.warn("Error de validación de datos de entrada: {}", ex.getMessage());
+
+        // Esto junta todos los mensajes de error (ej: "contraseña solo números",
+        // "cédula 10 dígitos")
+        var errors = ex.getBindingResult()
+                .getAllErrors().stream()
+                .map(error -> ((org.springframework.validation.FieldError) error).getField() + ": "
+                        + error.getDefaultMessage())
+                .collect(Collectors.toList());
+
+        return Map.of(
+                "error", "Datos de Entrada Inválidos",
+                "mensajes", errors);
     }
 
     @ExceptionHandler(Exception.class)

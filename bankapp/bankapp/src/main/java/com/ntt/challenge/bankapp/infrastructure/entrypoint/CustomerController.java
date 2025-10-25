@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import jakarta.validation.Valid;
 
 @Slf4j
 @RestController
@@ -32,7 +33,7 @@ public class CustomerController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Customer> createCustomer(@RequestBody Customer customer) {
+    public Mono<Customer> createCustomer(@Valid @RequestBody Customer customer) {
         log.info("POST /api/v1/customers");
         return customerService.saveCustomer(customer);
     }

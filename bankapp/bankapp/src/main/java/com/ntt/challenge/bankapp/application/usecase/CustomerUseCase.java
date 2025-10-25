@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Slf4j // anotacion para logs
 @Service
@@ -21,6 +22,7 @@ import reactor.core.scheduler.Schedulers;
 
 public class CustomerUseCase implements CustomerService {
     private final CustomerJpaRepository customerJpaRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Flux<Customer> findAllCustomers() {
@@ -40,7 +42,12 @@ public class CustomerUseCase implements CustomerService {
     @Override
     public Mono<Customer> saveCustomer(Customer customer) {
         log.info("Saving new customer: {}", customer); // log
-        return Mono.fromCallable(() -> customerJpaRepository.save(customer))
+        return Mono.fromCallable(() -> {
+            // Codificar la contraseña antes de guardar
+            String passCodificado = passwordEncoder.encode(customer.getPassword());
+            customer.setPassword(passCodificado);
+            return customerJpaRepository.save(customer);
+        })
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -55,7 +62,10 @@ public class CustomerUseCase implements CustomerService {
             customer.setAddress(customerDetails.getAddress());
             customer.setPhone(customerDetails.getPhone());
             customer.setStatus(customerDetails.getStatus());
-
+            if (customerDetails.getPassword() != null && !customerDetails.getPassword().isEmpty()) {
+                String passCodificado = passwordEncoder.encode(customerDetails.getPassword());
+                customer.setPassword(passCodificado);
+            }
             return customerJpaRepository.save(customer);
         }).subscribeOn(Schedulers.boundedElastic());
     }
