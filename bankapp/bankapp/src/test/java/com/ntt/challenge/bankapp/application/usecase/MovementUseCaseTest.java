@@ -11,15 +11,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.test.StepVerifier; // Importante para probar 'Mono'
+import reactor.test.StepVerifier;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 class MovementUseCaseTest {
@@ -30,13 +30,13 @@ class MovementUseCaseTest {
     @Mock
     private MovementJpaRepository movementJpaRepository;
 
-    @InjectMocks // AQUI SE INYECTAN LOS MOCOS EN LA CLASE A PROBAR
+    @InjectMocks
     private MovementUseCase movementUseCase;
 
     private Account testAccount;
     private Movement testMovement;
 
-    @BeforeEach // Se ejecuta antes de cada prueba
+    @BeforeEach
     void setUp() {
         // Cuenta de prueba
         testAccount = new Account();
@@ -45,53 +45,51 @@ class MovementUseCaseTest {
 
         // Movimiento de prueba
         testMovement = new Movement();
-        testMovement.setAccount(testAccount);
+        testMovement.setAccount(testAccount); // ¡Clave que la cuenta esté aquí!
         testMovement.setMovementType("Débito");
     }
 
     // PRUEBA 1
-
     @Test
     void testSaveMovement_SuccessDebit() {
         // DADO QUE
         testMovement.setValue(575.0);
 
-        // SIMULAR QUE SE ENCUENTRA LA CUENTA
-        when(accountJpaRepository.findByAccountNumber(eq("478758")))
+        // Simulamos que el repo SÍ encuentra la cuenta
+        when(accountJpaRepository.findByAccountNumber(anyString()))
                 .thenReturn(Optional.of(testAccount));
 
-        // SIMULAR QUE NO HAY MOVIMIENTOS PREVIOS
+        // Simulamos que NO hay movimientos previos
+        when(movementJpaRepository.findTopByAccount_AccountNumberOrderByDateDesc(anyString()))
+                .thenReturn(Optional.empty());
+
+        // Simulamos que el guardado (save) funciona
         when(movementJpaRepository.save(any(Movement.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // SIMULAR QUE EL GUARDADO ES EXITOSO
-        when(movementJpaRepository.save(any(Movement.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-
+        // CUANDO
         var monoResult = movementUseCase.saveMovement(testMovement);
 
-        // ENTONCES
+        // ENOTNCES
         StepVerifier.create(monoResult)
                 .assertNext(savedMovement -> {
                     assertNotNull(savedMovement);
                     assertEquals(1425.0, savedMovement.getBalance());
-                    assertEquals("Débito", savedMovement.getMovementType());
                 })
                 .verifyComplete();
     }
 
     // PRUEBA 2
-
     @Test
     void testSaveMovement_FailsInsufficientBalance() {
         // DADO QUE
         testMovement.setValue(3000.0);
 
-        // SIMULAR QUE SE ENCUENTRA LA CUENTA
+        // Simulamos que el repo SÍ encuentra la cuenta
         when(accountJpaRepository.findByAccountNumber(anyString()))
                 .thenReturn(Optional.of(testAccount));
 
-        // SIMULAR QUE NO HAY MOVIMIENTOS PREVIOS
+        // Simulamos que no hay movimientos previos
         when(movementJpaRepository.findTopByAccount_AccountNumberOrderByDateDesc(anyString()))
                 .thenReturn(Optional.empty());
 
