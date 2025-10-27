@@ -50,7 +50,9 @@ public class MovementUseCase implements MovementService {
                 throw new IllegalArgumentException("Valor del movimiento debe ser mayor a cero");
             }
 
-            Account account = accountJpaRepository.findById(movement.getAccount().getAccountNumber())
+            // Buscar la cuenta por su número (no por ID), ya que el identificador es el
+            // accountNumber
+            Account account = accountJpaRepository.findByAccountNumber(movement.getAccount().getAccountNumber())
                     .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
 
             double currentBalance = movementJpaRepository
