@@ -3,12 +3,12 @@ package com.ntt.challenge.bankapp.application.usecase;
 import com.ntt.challenge.bankapp.domain.exception.InsufficientBalanceException;
 import com.ntt.challenge.bankapp.domain.model.Account;
 import com.ntt.challenge.bankapp.domain.model.Movement;
-import com.ntt.challenge.bankapp.infrastructure.repository.AccountJpaRepository;
-import com.ntt.challenge.bankapp.infrastructure.repository.MovementJpaRepository;
+import com.ntt.challenge.bankapp.domain.policy.DefaultMovementPolicy;
+import com.ntt.challenge.bankapp.domain.repository.AccountRepository;
+import com.ntt.challenge.bankapp.domain.repository.MovementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.test.StepVerifier;
@@ -24,81 +24,83 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class MovementUseCaseTest {
 
-    @Mock
-    private AccountJpaRepository accountJpaRepository;
+        @Mock
+        private AccountRepository accountRepository;
 
-    @Mock
-    private MovementJpaRepository movementJpaRepository;
+        @Mock
+        private MovementRepository movementRepository;
 
-    @InjectMocks
-    private MovementUseCase movementUseCase;
+        private MovementUseCase movementUseCase;
 
-    private Account testAccount;
-    private Movement testMovement;
+        private Account testAccount;
+        private Movement testMovement;
 
-    @BeforeEach
-    void setUp() {
-        // Cuenta de prueba
-        testAccount = new Account();
-        testAccount.setAccountNumber("478758");
-        testAccount.setInitialBalance(2000.0);
+        @BeforeEach
+        void setUp() {
+                movementUseCase = new MovementUseCase(movementRepository, accountRepository,
+                                new DefaultMovementPolicy());
 
-        // Movimiento de prueba
-        testMovement = new Movement();
-        testMovement.setAccount(testAccount); // ¡Clave que la cuenta esté aquí!
-        testMovement.setMovementType("Débito");
-    }
+                // Cuenta de prueba
+                testAccount = new Account();
+                testAccount.setAccountNumber("478758");
+                testAccount.setInitialBalance(2000.0);
 
-    // PRUEBA 1
-    @Test
-    void testSaveMovement_SuccessDebit() {
-        // DADO QUE
-        testMovement.setValue(575.0);
+                // Movimiento de prueba
+                testMovement = new Movement();
+                testMovement.setAccount(testAccount); // ¡Clave que la cuenta esté aquí!
+                testMovement.setMovementType("Débito");
+        }
 
-        // Simulamos que el repo SÍ encuentra la cuenta
-        when(accountJpaRepository.findByAccountNumber(anyString()))
-                .thenReturn(Optional.of(testAccount));
+        // PRUEBA 1
+        @Test
+        void testSaveMovement_SuccessDebit() {
+                // DADO QUE
+                testMovement.setValue(575.0);
 
-        // Simulamos que NO hay movimientos previos
-        when(movementJpaRepository.findTopByAccount_AccountNumberOrderByDateDesc(anyString()))
-                .thenReturn(Optional.empty());
+                // Simulamos que el repo SÍ encuentra la cuenta
+                when(accountRepository.findByAccountNumber(anyString()))
+                                .thenReturn(Optional.of(testAccount));
 
-        // Simulamos que el guardado (save) funciona
-        when(movementJpaRepository.save(any(Movement.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                // Simulamos que NO hay movimientos previos
+                when(movementRepository.findTopByAccountNumberOrderByDateDesc(anyString()))
+                                .thenReturn(Optional.empty());
 
-        // CUANDO
-        var monoResult = movementUseCase.saveMovement(testMovement);
+                // Simulamos que el guardado (save) funciona
+                when(movementRepository.save(any(Movement.class)))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // ENOTNCES
-        StepVerifier.create(monoResult)
-                .assertNext(savedMovement -> {
-                    assertNotNull(savedMovement);
-                    assertEquals(1425.0, savedMovement.getBalance());
-                })
-                .verifyComplete();
-    }
+                // CUANDO
+                var monoResult = movementUseCase.saveMovement(testMovement);
 
-    // PRUEBA 2
-    @Test
-    void testSaveMovement_FailsInsufficientBalance() {
-        // DADO QUE
-        testMovement.setValue(3000.0);
+                // ENTONCES
+                StepVerifier.create(monoResult)
+                                .assertNext(savedMovement -> {
+                                        assertNotNull(savedMovement);
+                                        assertEquals(1425.0, savedMovement.getBalance());
+                                })
+                                .verifyComplete();
+        }
 
-        // Simulamos que el repo SÍ encuentra la cuenta
-        when(accountJpaRepository.findByAccountNumber(anyString()))
-                .thenReturn(Optional.of(testAccount));
+        // PRUEBA 2
+        @Test
+        void testSaveMovement_FailsInsufficientBalance() {
+                // DADO QUE
+                testMovement.setValue(3000.0);
 
-        // Simulamos que no hay movimientos previos
-        when(movementJpaRepository.findTopByAccount_AccountNumberOrderByDateDesc(anyString()))
-                .thenReturn(Optional.empty());
+                // Simulamos que el repo SÍ encuentra la cuenta
+                when(accountRepository.findByAccountNumber(anyString()))
+                                .thenReturn(Optional.of(testAccount));
 
-        // CUANDO
-        var monoResult = movementUseCase.saveMovement(testMovement);
+                // Simulamos que no hay movimientos previos
+                when(movementRepository.findTopByAccountNumberOrderByDateDesc(anyString()))
+                                .thenReturn(Optional.empty());
 
-        // ENTONCES
-        StepVerifier.create(monoResult)
-                .expectError(InsufficientBalanceException.class)
-                .verify();
-    }
+                // CUANDO
+                var monoResult = movementUseCase.saveMovement(testMovement);
+
+                // ENTONCES
+                StepVerifier.create(monoResult)
+                                .expectError(InsufficientBalanceException.class)
+                                .verify();
+        }
 }

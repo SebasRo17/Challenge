@@ -1,20 +1,20 @@
-package com.ntt.challenge.bankapp.domain.model;
+package com.ntt.challenge.bankapp.application.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.List;
 
 @Getter
 @Setter
-public class Account {
-
+public class AccountDto {
+    @NotBlank
     private String accountNumber;
 
+    @NotBlank
     private String accountType;
+
     private Double initialBalance;
     private Boolean status;
 
-    private Customer customer;
-
-    private List<Movement> movements;
+    private Long customerId;
 }

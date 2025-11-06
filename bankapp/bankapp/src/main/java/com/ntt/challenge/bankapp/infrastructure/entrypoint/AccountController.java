@@ -1,6 +1,7 @@
 package com.ntt.challenge.bankapp.infrastructure.entrypoint;
 
-import com.ntt.challenge.bankapp.domain.model.Account;
+import com.ntt.challenge.bankapp.application.dto.AccountDto;
+import com.ntt.challenge.bankapp.application.mapper.AccountDtoMapper;
 import com.ntt.challenge.bankapp.domain.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,34 +14,37 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("api/v1/accounts")
 @RequiredArgsConstructor
-
 public class AccountController {
 
     private final AccountService accountService;
 
     @GetMapping
-    public Flux<Account> getAllAccounts() {
+    public Flux<AccountDto> getAllAccounts() {
         log.info("GET /api/v1/accounts");
-        return accountService.findAllAccounts();
+        return accountService.findAllAccounts()
+                .map(AccountDtoMapper::toDto);
     }
 
     @GetMapping("/{accountNumber}")
-    public Mono<Account> getAccountByNumber(@PathVariable String accountNumber) {
+    public Mono<AccountDto> getAccountByNumber(@PathVariable String accountNumber) {
         log.info("GET /api/v1/accounts/{}", accountNumber);
-        return accountService.findByAccountNumber(accountNumber);
+        return accountService.findByAccountNumber(accountNumber)
+                .map(AccountDtoMapper::toDto);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Account> createAccount(@RequestBody Account account) {
+    public Mono<AccountDto> createAccount(@RequestBody AccountDto accountDto) {
         log.info("POST /api/v1/accounts");
-        return accountService.saveAccount(account);
+        return accountService.saveAccount(AccountDtoMapper.toDomain(accountDto))
+                .map(AccountDtoMapper::toDto);
     }
 
     @PutMapping("/{accountNumber}")
-    public Mono<Account> updateAccount(@PathVariable String accountNumber, @RequestBody Account account) {
+    public Mono<AccountDto> updateAccount(@PathVariable String accountNumber, @RequestBody AccountDto accountDto) {
         log.info("PUT /api/v1/accounts/{}", accountNumber);
-        return accountService.updateAccount(accountNumber, account);
+        return accountService.updateAccount(accountNumber, AccountDtoMapper.toDomain(accountDto))
+                .map(AccountDtoMapper::toDto);
     }
 
     @DeleteMapping("/{accountNumber}")

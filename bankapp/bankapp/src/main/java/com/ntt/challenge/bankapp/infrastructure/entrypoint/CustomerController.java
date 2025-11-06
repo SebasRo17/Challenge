@@ -1,6 +1,7 @@
 package com.ntt.challenge.bankapp.infrastructure.entrypoint;
 
-import com.ntt.challenge.bankapp.domain.model.Customer;
+import com.ntt.challenge.bankapp.application.dto.CustomerDto;
+import com.ntt.challenge.bankapp.application.mapper.CustomerDtoMapper;
 import com.ntt.challenge.bankapp.domain.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,34 +15,37 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("api/v1/customers")
 @RequiredArgsConstructor
-
 public class CustomerController {
 
     private final CustomerService customerService;
 
     @GetMapping
-    public Flux<Customer> getAllCustomers() {
+    public Flux<CustomerDto> getAllCustomers() {
         log.info("GET /api/v1/customers");
-        return customerService.findAllCustomers();
+        return customerService.findAllCustomers()
+                .map(CustomerDtoMapper::toDto);
     }
 
     @GetMapping("/{id}")
-    public Mono<Customer> getCustomerById(@PathVariable Long id) {
+    public Mono<CustomerDto> getCustomerById(@PathVariable Long id) {
         log.info("GET /api/v1/customers/{}", id);
-        return customerService.findCustomerById(id);
+        return customerService.findCustomerById(id)
+                .map(CustomerDtoMapper::toDto);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Customer> createCustomer(@Valid @RequestBody Customer customer) {
+    public Mono<CustomerDto> createCustomer(@Valid @RequestBody CustomerDto customer) {
         log.info("POST /api/v1/customers");
-        return customerService.saveCustomer(customer);
+        return customerService.saveCustomer(CustomerDtoMapper.toDomain(customer))
+                .map(CustomerDtoMapper::toDto);
     }
 
     @PutMapping("/{id}")
-    public Mono<Customer> updateCustomer(@PathVariable Long id, @RequestBody Customer customer) {
+    public Mono<CustomerDto> updateCustomer(@PathVariable Long id, @RequestBody CustomerDto customer) {
         log.info("PUT /api/v1/customers/{}", id);
-        return customerService.updateCustomer(id, customer);
+        return customerService.updateCustomer(id, CustomerDtoMapper.toDomain(customer))
+                .map(CustomerDtoMapper::toDto);
     }
 
     @DeleteMapping("/{id}")
