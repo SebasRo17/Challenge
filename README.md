@@ -24,7 +24,7 @@ Sistema bancario moderno desarrollado con **Arquitectura Hexagonal (Ports & Adap
 
 ---
 
-## ✨ Características
+## Características
 
 ### Funcionalidades Principales
 
@@ -34,12 +34,12 @@ Sistema bancario moderno desarrollado con **Arquitectura Hexagonal (Ports & Adap
 
 ### Características Técnicas
 
-- 🏗️ **Arquitectura Hexagonal**: Separación clara de capas y dependencias
-- 🔐 **Seguridad**: Encriptación de contraseñas con BCrypt
-- 🚀 **Reactividad**: Endpoints reactivos con Project Reactor
-- 🎯 **Clean Code**: Principios SOLID y DIP aplicados
-- 📊 **Base de Datos**: PostgreSQL con migraciones automáticas
-- 🧪 **Testing**: Tests unitarios y de integración con H2
+- **Arquitectura Hexagonal**: Separación clara de capas y dependencias
+- **Seguridad**: Encriptación de contraseñas con BCrypt
+- **Reactividad**: Endpoints reactivos con Project Reactor
+- **Clean Code**: Principios SOLID y DIP aplicados
+- **Base de Datos**: PostgreSQL con migraciones automáticas
+- **Testing**: Tests unitarios y de integración con H2
 
 ---
 
@@ -49,15 +49,15 @@ El proyecto implementa **Arquitectura Hexagonal** con clara separación de respo
 
 ### Diagrama de Capas
 
-![Diagrama de Capas](../../images/DIAGRAMA%20DE%20CAPAS.png)
+![Diagrama de Capas](./images/DIAGRAMA%20DE%20CAPAS.png)
 
 ### Flujo de Dependencias (Principio DIP)
 
-![Flujo de Dependencias](../../images/FLUJO%20DE%20DEPENDENCIAS.png)
+![Flujo de Dependencias](./images/FLUJO%20DE%20DEPENDENCIAS.png)
 
 ### Flujo de una Operación (Ejemplo: Crear Movimiento)
 
-![Flujo de una Operación](../../images/FLUJO%20DE%20UNA%20OPERACION.png)
+![Flujo de una Operación](./images/FLUJO%20DE%20UNA%20OPERACION.png)
 
 ---
 
@@ -403,7 +403,7 @@ Las capas externas dependen de las internas, **nunca al revés**.
 
 ## 📊 Modelo de Datos
 
-![Modelo de Datos](../../images/MODELO%20DE%20DATOS.png)
+![Modelo de Datos](./images/MODELO%20DE%20DATOS.png)
 
 ---
 
