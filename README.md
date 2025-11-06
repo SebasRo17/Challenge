@@ -43,7 +43,7 @@ Sistema bancario moderno desarrollado con **Arquitectura Hexagonal (Ports & Adap
 
 ---
 
-## 🏛️ Arquitectura
+## Arquitectura
 
 El proyecto implementa **Arquitectura Hexagonal** con clara separación de responsabilidades:
 
@@ -61,7 +61,7 @@ El proyecto implementa **Arquitectura Hexagonal** con clara separación de respo
 
 ---
 
-## 🛠️ Tecnologías
+## Tecnologías
 
 ### Backend
 - **Java 17**: Lenguaje base
@@ -88,7 +88,7 @@ El proyecto implementa **Arquitectura Hexagonal** con clara separación de respo
 
 ---
 
-## 📦 Requisitos Previos
+## Requisitos Previos
 
 - **Java 17** o superior
 - **Maven 3.6+**
