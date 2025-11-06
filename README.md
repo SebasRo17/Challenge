@@ -11,16 +11,16 @@ Sistema bancario moderno desarrollado con **Arquitectura Hexagonal (Ports & Adap
 
 ## 📋 Tabla de Contenidos
 
-- [Características](#-características)
-- [Arquitectura](#-arquitectura)
-- [Tecnologías](#-tecnologías)
+- [Características](#características)
+- [Arquitectura](#arquitectura)
+- [Tecnologías](#tecnologías)
 - [Requisitos Previos](#-requisitos-previos)
-- [Instalación y Configuración](#-instalación-y-configuración)
-- [Ejecución](#-ejecución)
-- [API Endpoints](#-api-endpoints)
-- [Testing](#-testing)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Principios de Diseño](#-principios-de-diseño)
+- [Instalación y Configuración](#instalación-y-configuración)
+- [Ejecución](#ejecución)
+- [API Endpoints](#api-endpoints)
+- [Testing](#testing)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Principios de Diseño](#principios-de-diseño)
 
 ---
 
