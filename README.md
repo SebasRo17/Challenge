@@ -97,7 +97,7 @@ El proyecto implementa **Arquitectura Hexagonal** con clara separación de respo
 
 ---
 
-## 🚀 Instalación y Configuración
+## Instalación y Configuración
 
 ### 1. Clonar el Repositorio
 
@@ -162,7 +162,7 @@ curl http://localhost:8080/api/v1/customers
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Clientes (Customers)
 
@@ -250,7 +250,7 @@ Content-Type: application/json
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Ejecutar Todos los Tests
 
@@ -275,7 +275,7 @@ El reporte estará en: `target/site/jacoco/index.html`
 
 ---
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 bankapp/
@@ -361,7 +361,7 @@ bankapp/
 
 ---
 
-## 🎯 Principios de Diseño
+## Principios de Diseño
 
 ### 1. **Arquitectura Hexagonal (Ports & Adapters)**
 
@@ -401,13 +401,13 @@ Las capas externas dependen de las internas, **nunca al revés**.
 
 ---
 
-## 📊 Modelo de Datos
+## Modelo de Datos
 
 ![Modelo de Datos](./images/MODELO%20DE%20DATOS.png)
 
 ---
 
-## 🔒 Seguridad
+## Seguridad
 
 ### Encriptación de Contraseñas
 
@@ -469,36 +469,6 @@ Por defecto, **todos los endpoints están abiertos** para facilitar el desarroll
 
 ---
 
-## 📈 Mejoras Futuras
-
-- [ ] Implementar paginación en endpoints de listado
-- [ ] Agregar autenticación JWT
-- [ ] Implementar rate limiting
-- [ ] Añadir cache con Redis
-- [ ] Crear endpoints de reportes avanzados
-- [ ] Implementar eventos de dominio (Event Sourcing)
-- [ ] Añadir OpenAPI/Swagger UI
-- [ ] Implementar auditoría de cambios
-- [ ] Añadir métricas con Micrometer
-- [ ] Dockerizar la aplicación
-
----
-
-## 👥 Contribución
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
----
-
-## 📝 Licencia
-
-Este proyecto es de código abierto y está disponible bajo la [Licencia MIT](LICENSE).
-
----
 
 ## 📧 Contacto
 
@@ -507,16 +477,7 @@ Este proyecto es de código abierto y está disponible bajo la [Licencia MIT](LI
 
 ---
 
-## 🙏 Agradecimientos
-
-- Spring Framework Team
-- Comunidad de Clean Architecture
-- Martin Fowler por Hexagonal Architecture
-- Robert C. Martin (Uncle Bob) por SOLID Principles
-
----
-
 <div align="center">
-  <p>Desarrollado con ❤️ usando Clean Architecture y Spring Boot</p>
-  <p>⭐ Si te gustó este proyecto, considera darle una estrella ⭐</p>
+  <p>Desarrollado usando Clean Architecture y Spring Boot</p>
+  <p>Si te gustó este proyecto, considera darle una estrella ⭐</p>
 </div>
