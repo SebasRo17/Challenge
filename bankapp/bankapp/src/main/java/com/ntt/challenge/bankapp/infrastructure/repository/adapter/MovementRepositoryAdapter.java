@@ -8,23 +8,13 @@ import com.ntt.challenge.bankapp.infrastructure.repository.MovementJpaRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class MovementRepositoryAdapter implements MovementRepository {
 
     private final MovementJpaRepository movementJpaRepository;
-
-    @Override
-    public List<Movement> findByCustomerAndDateRange(Long customerId, LocalDate startDate, LocalDate endDate) {
-        return movementJpaRepository.findByCustomerAndDateRange(customerId, startDate, endDate).stream()
-                .map(MovementEntityMapper::toDomain)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public Optional<Movement> findTopByAccountNumberOrderByDateDesc(String accountNumber) {

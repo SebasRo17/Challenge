@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -24,45 +23,39 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class MovementUseCase implements MovementService {
 
-    private final MovementRepository movementRepository;
-    private final AccountRepository accountRepository;
-    private final MovementPolicy movementPolicy;
+        private final MovementRepository movementRepository;
+        private final AccountRepository accountRepository;
+        private final MovementPolicy movementPolicy;
 
-    @Override
-    public Flux<Movement> findMovementsByDateRange(Long customerId, LocalDate startDate, LocalDate endDate) {
-        log.info("Finding movements for customer ID: {} from {} to {}", customerId, startDate, endDate);
-        return Flux.defer(() -> Flux.fromIterable(
-                movementRepository.findByCustomerAndDateRange(customerId, startDate, endDate)))
-                .subscribeOn(Schedulers.boundedElastic());
-    }
+        @Override
+        public Mono<Movement> saveMovement(Movement movement) {
+                log.info("Saving new movement: {}", movement);
 
-    @Override
-    public Mono<Movement> saveMovement(Movement movement) {
-        log.info("Saving new movement: {}", movement);
+                return Mono.fromCallable(() -> {
+                        // Buscar la cuenta por su número (no por ID), ya que el identificador es el
+                        // accountNumber
+                        Account account = accountRepository
+                                        .findByAccountNumber(movement.getAccount().getAccountNumber())
+                                        .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
 
-        return Mono.fromCallable(() -> {
-            // Buscar la cuenta por su número (no por ID), ya que el identificador es el
-            // accountNumber
-            Account account = accountRepository.findByAccountNumber(movement.getAccount().getAccountNumber())
-                    .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+                        double currentBalance = movementRepository
+                                        .findTopByAccountNumberOrderByDateDesc(account.getAccountNumber())
+                                        .map(Movement::getBalance)
+                                        .orElse(account.getInitialBalance());
 
-            double currentBalance = movementRepository
-                    .findTopByAccountNumberOrderByDateDesc(account.getAccountNumber())
-                    .map(Movement::getBalance)
-                    .orElse(account.getInitialBalance());
+                        log.info("Current balance for account {}: {}", account.getAccountNumber(), currentBalance);
 
-            log.info("Current balance for account {}: {}", account.getAccountNumber(), currentBalance);
+                        double newBalance = movementPolicy.calculateNewBalance(currentBalance,
+                                        movement.getMovementType(), movement.getValue());
 
-            double newBalance = movementPolicy.calculateNewBalance(currentBalance,
-                    movement.getMovementType(), movement.getValue());
+                        movement.setAccount(account);
+                        movement.setDate(LocalDate.now());
+                        movement.setBalance(newBalance);
 
-            movement.setAccount(account);
-            movement.setDate(LocalDate.now());
-            movement.setBalance(newBalance);
-
-            log.info("New balance for account {} after {} of {}: {}",
-                    account.getAccountNumber(), movement.getMovementType(), movement.getValue(), newBalance);
-            return movementRepository.save(movement);
-        }).subscribeOn(Schedulers.boundedElastic());
-    }
+                        log.info("New balance for account {} after {} of {}: {}",
+                                        account.getAccountNumber(), movement.getMovementType(), movement.getValue(),
+                                        newBalance);
+                        return movementRepository.save(movement);
+                }).subscribeOn(Schedulers.boundedElastic());
+        }
 }
