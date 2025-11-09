@@ -5,7 +5,6 @@ import com.ntt.challenge.bankapp.domain.model.Movement;
 import com.ntt.challenge.bankapp.domain.policy.MovementPolicy;
 import com.ntt.challenge.bankapp.domain.repository.AccountRepository;
 import com.ntt.challenge.bankapp.domain.repository.MovementRepository;
-import com.ntt.challenge.bankapp.domain.service.MovementService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -21,19 +20,16 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class MovementUseCase implements MovementService {
+public class MovementUseCase {
 
         private final MovementRepository movementRepository;
         private final AccountRepository accountRepository;
         private final MovementPolicy movementPolicy;
 
-        @Override
         public Mono<Movement> saveMovement(Movement movement) {
                 log.info("Saving new movement: {}", movement);
 
                 return Mono.fromCallable(() -> {
-                        // Buscar la cuenta por su número (no por ID), ya que el identificador es el
-                        // accountNumber
                         Account account = accountRepository
                                         .findByAccountNumber(movement.getAccount().getAccountNumber())
                                         .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));

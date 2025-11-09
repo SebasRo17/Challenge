@@ -2,7 +2,7 @@ package com.ntt.challenge.bankapp.infrastructure.entrypoint;
 
 import com.ntt.challenge.bankapp.application.dto.MovementDto;
 import com.ntt.challenge.bankapp.application.mapper.MovementDtoMapper;
-import com.ntt.challenge.bankapp.domain.service.MovementService;
+import com.ntt.challenge.bankapp.application.usecase.MovementUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,13 +14,13 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/v1/movements")
 @RequiredArgsConstructor
 public class MovementController {
-    private final MovementService movementService;
+    private final MovementUseCase movementUseCase;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<MovementDto> createMovement(@RequestBody MovementDto movement) {
         log.info("POST /api/v1/movements");
-        return movementService.saveMovement(MovementDtoMapper.toDomain(movement))
+        return movementUseCase.saveMovement(MovementDtoMapper.toDomain(movement))
                 .map(MovementDtoMapper::toDto);
     }
 }

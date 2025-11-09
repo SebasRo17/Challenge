@@ -2,7 +2,7 @@ package com.ntt.challenge.bankapp.infrastructure.entrypoint;
 
 import com.ntt.challenge.bankapp.application.dto.AccountDto;
 import com.ntt.challenge.bankapp.application.mapper.AccountDtoMapper;
-import com.ntt.challenge.bankapp.domain.service.AccountService;
+import com.ntt.challenge.bankapp.application.usecase.AccountUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,19 +16,19 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AccountController {
 
-    private final AccountService accountService;
+    private final AccountUseCase accountUseCase;
 
     @GetMapping
     public Flux<AccountDto> getAllAccounts() {
         log.info("GET /api/v1/accounts");
-        return accountService.findAllAccounts()
+        return accountUseCase.findAllAccounts()
                 .map(AccountDtoMapper::toDto);
     }
 
     @GetMapping("/{accountNumber}")
     public Mono<AccountDto> getAccountByNumber(@PathVariable String accountNumber) {
         log.info("GET /api/v1/accounts/{}", accountNumber);
-        return accountService.findByAccountNumber(accountNumber)
+        return accountUseCase.findByAccountNumber(accountNumber)
                 .map(AccountDtoMapper::toDto);
     }
 
@@ -36,14 +36,14 @@ public class AccountController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<AccountDto> createAccount(@RequestBody AccountDto accountDto) {
         log.info("POST /api/v1/accounts");
-        return accountService.saveAccount(AccountDtoMapper.toDomain(accountDto))
+        return accountUseCase.saveAccount(AccountDtoMapper.toDomain(accountDto))
                 .map(AccountDtoMapper::toDto);
     }
 
     @PutMapping("/{accountNumber}")
     public Mono<AccountDto> updateAccount(@PathVariable String accountNumber, @RequestBody AccountDto accountDto) {
         log.info("PUT /api/v1/accounts/{}", accountNumber);
-        return accountService.updateAccount(accountNumber, AccountDtoMapper.toDomain(accountDto))
+        return accountUseCase.updateAccount(accountNumber, AccountDtoMapper.toDomain(accountDto))
                 .map(AccountDtoMapper::toDto);
     }
 
@@ -51,6 +51,6 @@ public class AccountController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> deleteAccount(@PathVariable String accountNumber) {
         log.info("DELETE /api/v1/accounts/{}", accountNumber);
-        return accountService.deleteAccount(accountNumber);
+        return accountUseCase.deleteAccount(accountNumber);
     }
 }
