@@ -1,4 +1,4 @@
-package com.ntt.challenge.bankapp.infrastructure.entrypoint;
+package com.ntt.challenge.bankapp.infrastructure.controller;
 
 import com.ntt.challenge.bankapp.application.dto.MovementDto;
 import com.ntt.challenge.bankapp.application.mapper.MovementDtoMapper;
