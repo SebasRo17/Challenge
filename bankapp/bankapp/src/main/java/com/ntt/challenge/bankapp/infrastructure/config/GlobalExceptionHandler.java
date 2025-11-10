@@ -11,12 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import java.util.stream.Collectors;
-
 import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
-
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(InsufficientBalanceException.class)
@@ -62,6 +60,13 @@ public class GlobalExceptionHandler {
     public Map<String, String> handleAccountTypeExists(AccountTypeAlreadyExistsException ex) {
         log.warn("Conflicto de regla de negocio: {}", ex.getMessage());
         return Map.of("error", "Regla de Negocio Rota", "mensaje", ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("Invalid argument: {}", ex.getMessage());
+        return Map.of("error", "Invalid argument", "message", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
