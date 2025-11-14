@@ -7,6 +7,7 @@ import com.ntt.challenge.bankapp.infrastructure.persistence.entity.MovementEntit
 import com.ntt.challenge.bankapp.infrastructure.repository.MovementJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,12 +19,14 @@ public class MovementRepositoryAdapter implements MovementRepository {
     private final MovementJpaRepository movementJpaRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Movement> findTopByAccountNumberOrderByDateDesc(String accountNumber) {
         return movementJpaRepository.findTopByAccount_AccountNumberOrderByDateDesc(accountNumber)
                 .map(MovementEntityMapper::toDomain);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Movement> findByAccountNumber(String accountNumber) {
         return movementJpaRepository.findByAccount_AccountNumber(accountNumber)
                 .stream()
@@ -32,6 +35,7 @@ public class MovementRepositoryAdapter implements MovementRepository {
     }
 
     @Override
+    @Transactional
     public Movement save(Movement movement) {
         MovementEntity entity = MovementEntityMapper.toEntity(movement);
         MovementEntity saved = movementJpaRepository.save(entity);

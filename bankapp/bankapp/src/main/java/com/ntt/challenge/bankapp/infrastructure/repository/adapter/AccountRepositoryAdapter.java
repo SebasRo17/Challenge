@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +24,7 @@ public class AccountRepositoryAdapter implements AccountRepository {
         return accountJpaRepository.findAll()
                 .stream()
                 .map(AccountEntityMapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -55,7 +54,7 @@ public class AccountRepositoryAdapter implements AccountRepository {
         return accountJpaRepository.findByCustomer_CustomerId(customerId)
                 .stream()
                 .map(AccountEntityMapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
