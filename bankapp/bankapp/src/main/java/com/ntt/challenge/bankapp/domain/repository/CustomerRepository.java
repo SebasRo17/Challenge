@@ -1,20 +1,21 @@
 package com.ntt.challenge.bankapp.domain.repository;
 
 import com.ntt.challenge.bankapp.domain.model.Customer;
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Puerto de dominio para operaciones con clientes.
+ * Retorna tipos reactivos para evitar bloqueo.
  */
 public interface CustomerRepository {
-    List<Customer> findAll();
+    Flux<Customer> findAll();
 
-    Optional<Customer> findById(Long id);
+    Mono<Customer> findById(Long id);
 
-    Optional<Customer> findByIdentification(String identification);
+    Mono<Customer> findByIdentification(String identification);
 
-    Customer save(Customer customer);
+    Mono<Customer> save(Customer customer);
 
-    void deleteById(Long id);
+    Mono<Void> deleteById(Long id);
 }

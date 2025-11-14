@@ -3,14 +3,12 @@ package com.ntt.challenge.bankapp.infrastructure.repository.adapter;
 import com.ntt.challenge.bankapp.application.mapper.MovementEntityMapper;
 import com.ntt.challenge.bankapp.domain.model.Movement;
 import com.ntt.challenge.bankapp.domain.repository.MovementRepository;
-import com.ntt.challenge.bankapp.infrastructure.persistence.entity.MovementEntity;
 import com.ntt.challenge.bankapp.infrastructure.repository.MovementJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Repository
 @RequiredArgsConstructor
@@ -19,26 +17,28 @@ public class MovementRepositoryAdapter implements MovementRepository {
     private final MovementJpaRepository movementJpaRepository;
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Movement> findTopByAccountNumberOrderByDateDesc(String accountNumber) {
-        return movementJpaRepository.findTopByAccount_AccountNumberOrderByDateDesc(accountNumber)
-                .map(MovementEntityMapper::toDomain);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Movement> findByAccountNumber(String accountNumber) {
-        return movementJpaRepository.findByAccount_AccountNumber(accountNumber)
-                .stream()
+    public Mono<Movement> findTopByAccountNumberOrderByDateDesc(String accountNumber) {
+        return Mono
+                .fromCallable(() -> movementJpaRepository.findTopByAccount_AccountNumberOrderByDateDesc(accountNumber))
+                .flatMap(opt -> opt.map(Mono::just).orElse(Mono.empty()))
                 .map(MovementEntityMapper::toDomain)
-                .toList();
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
-    @Transactional
-    public Movement save(Movement movement) {
-        MovementEntity entity = MovementEntityMapper.toEntity(movement);
-        MovementEntity saved = movementJpaRepository.save(entity);
-        return MovementEntityMapper.toDomain(saved);
+    public Flux<Movement> findByAccountNumber(String accountNumber) {
+        return Flux.defer(() -> Flux.fromIterable(movementJpaRepository.findByAccount_AccountNumber(accountNumber)))
+                .map(MovementEntityMapper::toDomain)
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    @Override
+    public Mono<Movement> save(Movement movement) {
+        return Mono.fromCallable(() -> {
+            var entity = MovementEntityMapper.toEntity(movement);
+            var saved = movementJpaRepository.save(entity);
+            return MovementEntityMapper.toDomain(saved);
+        })
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }

@@ -1,23 +1,23 @@
 package com.ntt.challenge.bankapp.domain.repository;
 
 import com.ntt.challenge.bankapp.domain.model.Account;
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Puerto de dominio para operaciones con cuentas.
- * No depende de frameworks.
+ * Retorna tipos reactivos para evitar bloqueo.
  */
 public interface AccountRepository {
-    List<Account> findAll();
+    Flux<Account> findAll();
 
-    Optional<Account> findByAccountNumber(String accountNumber);
+    Mono<Account> findByAccountNumber(String accountNumber);
 
-    boolean existsByCustomerIdAndAccountType(Long customerId, String accountType);
+    Mono<Boolean> existsByCustomerIdAndAccountType(Long customerId, String accountType);
 
-    List<Account> findByCustomerId(Long customerId);
+    Flux<Account> findByCustomerId(Long customerId);
 
-    Account save(Account account);
+    Mono<Account> save(Account account);
 
-    void deleteByAccountNumber(String accountNumber);
+    Mono<Void> deleteByAccountNumber(String accountNumber);
 }

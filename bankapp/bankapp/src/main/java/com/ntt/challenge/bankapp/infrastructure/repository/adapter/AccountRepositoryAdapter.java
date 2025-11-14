@@ -3,14 +3,12 @@ package com.ntt.challenge.bankapp.infrastructure.repository.adapter;
 import com.ntt.challenge.bankapp.application.mapper.AccountEntityMapper;
 import com.ntt.challenge.bankapp.domain.model.Account;
 import com.ntt.challenge.bankapp.domain.repository.AccountRepository;
-import com.ntt.challenge.bankapp.infrastructure.persistence.entity.AccountEntity;
 import com.ntt.challenge.bankapp.infrastructure.repository.AccountJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Repository
 @RequiredArgsConstructor
@@ -19,47 +17,49 @@ public class AccountRepositoryAdapter implements AccountRepository {
     private final AccountJpaRepository accountJpaRepository;
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Account> findAll() {
-        return accountJpaRepository.findAll()
-                .stream()
+    public Flux<Account> findAll() {
+        return Flux.defer(() -> Flux.fromIterable(accountJpaRepository.findAll()))
                 .map(AccountEntityMapper::toDomain)
-                .toList();
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Account> findByAccountNumber(String accountNumber) {
-        return accountJpaRepository.findByAccountNumber(accountNumber)
-                .map(AccountEntityMapper::toDomain);
-    }
-
-    @Override
-    @Transactional
-    public Account save(Account account) {
-        AccountEntity entity = AccountEntityMapper.toEntity(account);
-        AccountEntity savedEntity = accountJpaRepository.save(entity);
-        return AccountEntityMapper.toDomain(savedEntity);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean existsByCustomerIdAndAccountType(Long customerId, String accountType) {
-        return accountJpaRepository.existsByCustomer_CustomerIdAndAccountType(customerId, accountType);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Account> findByCustomerId(Long customerId) {
-        return accountJpaRepository.findByCustomer_CustomerId(customerId)
-                .stream()
+    public Mono<Account> findByAccountNumber(String accountNumber) {
+        return Mono.fromCallable(() -> accountJpaRepository.findByAccountNumber(accountNumber))
+                .flatMap(opt -> opt.map(Mono::just).orElse(Mono.empty()))
                 .map(AccountEntityMapper::toDomain)
-                .toList();
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
-    @Transactional
-    public void deleteByAccountNumber(String accountNumber) {
-        accountJpaRepository.deleteByAccountNumber(accountNumber);
+    public Mono<Account> save(Account account) {
+        return Mono.fromCallable(() -> {
+            var entity = AccountEntityMapper.toEntity(account);
+            var savedEntity = accountJpaRepository.save(entity);
+            return AccountEntityMapper.toDomain(savedEntity);
+        })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    @Override
+    public Mono<Boolean> existsByCustomerIdAndAccountType(Long customerId, String accountType) {
+        return Mono
+                .fromCallable(
+                        () -> accountJpaRepository.existsByCustomer_CustomerIdAndAccountType(customerId, accountType))
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    @Override
+    public Flux<Account> findByCustomerId(Long customerId) {
+        return Flux.defer(() -> Flux.fromIterable(accountJpaRepository.findByCustomer_CustomerId(customerId)))
+                .map(AccountEntityMapper::toDomain)
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    @Override
+    public Mono<Void> deleteByAccountNumber(String accountNumber) {
+        return Mono.fromRunnable(() -> accountJpaRepository.deleteByAccountNumber(accountNumber))
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
     }
 }

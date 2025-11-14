@@ -1,17 +1,17 @@
 package com.ntt.challenge.bankapp.domain.repository;
 
 import com.ntt.challenge.bankapp.domain.model.Movement;
-
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Puerto de dominio para operaciones con movimientos.
+ * Retorna tipos reactivos para evitar bloqueo.
  */
 public interface MovementRepository {
-    Optional<Movement> findTopByAccountNumberOrderByDateDesc(String accountNumber);
+    Mono<Movement> findTopByAccountNumberOrderByDateDesc(String accountNumber);
 
-    List<Movement> findByAccountNumber(String accountNumber);
+    Flux<Movement> findByAccountNumber(String accountNumber);
 
-    Movement save(Movement movement);
+    Mono<Movement> save(Movement movement);
 }

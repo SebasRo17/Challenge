@@ -1,6 +1,5 @@
 package com.ntt.challenge.bankapp.application.usecase;
 
-import com.ntt.challenge.bankapp.domain.model.Account;
 import com.ntt.challenge.bankapp.domain.model.Movement;
 import com.ntt.challenge.bankapp.domain.policy.MovementPolicy;
 import com.ntt.challenge.bankapp.domain.repository.AccountRepository;
@@ -12,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
 
@@ -30,36 +28,36 @@ public class MovementUseCase {
         public Mono<Movement> saveMovement(Movement movement) {
                 log.info("Saving new movement: {}", movement);
 
-                return Mono.fromCallable(() -> {
-                        Account account = accountRepository
-                                        .findByAccountNumber(movement.getAccount().getAccountNumber())
-                                        .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+                return accountRepository.findByAccountNumber(movement.getAccount().getAccountNumber())
+                                .switchIfEmpty(Mono.error(new RuntimeException("Cuenta no encontrada")))
+                                .flatMap(account -> movementRepository
+                                                .findTopByAccountNumberOrderByDateDesc(account.getAccountNumber())
+                                                .map(Movement::getBalance)
+                                                .defaultIfEmpty(account.getInitialBalance())
+                                                .flatMap(currentBalance -> {
+                                                        log.info("Current balance for account {}: {}",
+                                                                        account.getAccountNumber(), currentBalance);
 
-                        double currentBalance = movementRepository
-                                        .findTopByAccountNumberOrderByDateDesc(account.getAccountNumber())
-                                        .map(Movement::getBalance)
-                                        .orElse(account.getInitialBalance());
+                                                        double newBalance = movementPolicy.calculateNewBalance(
+                                                                        currentBalance,
+                                                                        movement.getMovementType(),
+                                                                        movement.getValue());
 
-                        log.info("Current balance for account {}: {}", account.getAccountNumber(), currentBalance);
+                                                        movement.setAccount(account);
+                                                        movement.setDate(LocalDate.now());
+                                                        movement.setBalance(newBalance);
 
-                        double newBalance = movementPolicy.calculateNewBalance(currentBalance,
-                                        movement.getMovementType(), movement.getValue());
+                                                        log.info("New balance for account {} after {} of {}: {}",
+                                                                        account.getAccountNumber(),
+                                                                        movement.getMovementType(),
+                                                                        movement.getValue(), newBalance);
 
-                        movement.setAccount(account);
-                        movement.setDate(LocalDate.now());
-                        movement.setBalance(newBalance);
-
-                        log.info("New balance for account {} after {} of {}: {}",
-                                        account.getAccountNumber(), movement.getMovementType(), movement.getValue(),
-                                        newBalance);
-                        return movementRepository.save(movement);
-                }).subscribeOn(Schedulers.boundedElastic());
+                                                        return movementRepository.save(movement);
+                                                }));
         }
 
         public Flux<Movement> findMovementsByAccountNumber(String accountNumber) {
                 log.info("Finding movements for account: {}", accountNumber);
-                return Mono.fromCallable(() -> movementRepository.findByAccountNumber(accountNumber))
-                                .flatMapMany(Flux::fromIterable)
-                                .subscribeOn(Schedulers.boundedElastic());
+                return movementRepository.findByAccountNumber(accountNumber);
         }
 }
