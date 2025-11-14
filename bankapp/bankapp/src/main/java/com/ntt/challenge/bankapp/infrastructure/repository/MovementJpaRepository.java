@@ -14,7 +14,9 @@ public interface MovementJpaRepository extends JpaRepository<MovementEntity, Lon
         @EntityGraph(attributePaths = { "account", "account.customer" })
         List<MovementEntity> findAll();
 
-        // ✅ AGREGAR ESTE MÉTODO
         @EntityGraph(attributePaths = { "account", "account.customer" })
         Optional<MovementEntity> findTopByAccount_AccountNumberOrderByDateDesc(String accountNumber);
+
+        @EntityGraph(attributePaths = { "account", "account.customer" })
+        List<MovementEntity> findByAccount_AccountNumber(String accountNumber);
 }

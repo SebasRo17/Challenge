@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -53,5 +54,12 @@ public class MovementUseCase {
                                         newBalance);
                         return movementRepository.save(movement);
                 }).subscribeOn(Schedulers.boundedElastic());
+        }
+
+        public Flux<Movement> findMovementsByAccountNumber(String accountNumber) {
+                log.info("Finding movements for account: {}", accountNumber);
+                return Mono.fromCallable(() -> movementRepository.findByAccountNumber(accountNumber))
+                                .flatMapMany(Flux::fromIterable)
+                                .subscribeOn(Schedulers.boundedElastic());
         }
 }

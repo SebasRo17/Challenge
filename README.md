@@ -31,15 +31,19 @@ Sistema bancario moderno desarrollado con **Arquitectura Hexagonal (Ports & Adap
 - ✅ **Gestión de Clientes**: CRUD completo con validaciones
 - ✅ **Gestión de Cuentas**: Creación y administración de cuentas bancarias
 - ✅ **Movimientos Bancarios**: Registro de débitos y créditos con validación de saldo
+- ✅ **Consulta de Movimientos**: Filtrado por cuenta con parámetros opcionales de fecha
 
 ### Características Técnicas
 
+- **Contract-First**: API diseñada con OpenAPI 3.0 Specification
+- **Code Generation**: Generación automática de modelos e interfaces con OpenAPI Generator
 - **Arquitectura Hexagonal**: Separación clara de capas y dependencias
 - **Seguridad**: Encriptación de contraseñas con BCrypt
 - **Reactividad**: Endpoints reactivos con Project Reactor
 - **Clean Code**: Principios SOLID y DIP aplicados
 - **Base de Datos**: PostgreSQL con migraciones automáticas
 - **Testing**: Tests unitarios y de integración con H2
+- **Documentación API**: Swagger UI interactiva auto-generada
 
 ---
 
@@ -70,6 +74,8 @@ El proyecto implementa **Arquitectura Hexagonal** con clara separación de respo
 - **Spring WebFlux**: Endpoints reactivos
 - **Spring Security**: Autenticación y encriptación
 - **Project Reactor**: Programación reactiva
+- **OpenAPI 3.0**: Especificación de la API
+- **OpenAPI Generator 7.2.0**: Generación automática de código
 
 ### Base de Datos
 - **PostgreSQL 15**: Base de datos principal
@@ -82,9 +88,10 @@ El proyecto implementa **Arquitectura Hexagonal** con clara separación de respo
 - **Reactor Test**: Testing reactivo
 
 ### Herramientas
-- **Maven**: Gestión de dependencias
+- **Maven**: Gestión de dependencias y build
 - **Lombok**: Reducción de boilerplate
 - **Docker Compose**: Orquestación de contenedores
+- **Swagger UI**: Documentación interactiva de la API
 
 ---
 
@@ -160,6 +167,16 @@ La aplicación estará disponible en: **http://localhost:8080**
 curl http://localhost:8080/api/v1/customers
 ```
 
+### Acceder a Swagger UI
+
+Abre tu navegador en: **http://localhost:8080/swagger-ui.html**
+
+Aquí podrás:
+- Ver todos los endpoints disponibles
+- Probar las APIs interactivamente
+- Ver los esquemas de request/response
+- Descargar la especificación OpenAPI
+
 ---
 
 ## API Endpoints
@@ -221,6 +238,7 @@ Content-Type: application/json
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
 | POST | `/api/v1/movements` | Registrar nuevo movimiento |
+| GET | `/api/v1/movements/account/{accountNumber}` | Listar movimientos por cuenta |
 
 #### Ejemplo Request: Crear Movimiento (Débito)
 
@@ -246,6 +264,35 @@ Content-Type: application/json
   "value": 2000.00,
   "accountNumber": "478758"
 }
+```
+
+#### Ejemplo Request: Consultar Movimientos por Cuenta
+
+```bash
+GET /api/v1/movements/account/478758
+GET /api/v1/movements/account/478758?startDate=2025-01-01&endDate=2025-12-31
+```
+
+**Respuesta:**
+```json
+[
+  {
+    "movementId": 1,
+    "date": "2025-11-14",
+    "movementType": "Crédito",
+    "value": 2000.00,
+    "balance": 3000.00,
+    "accountNumber": "478758"
+  },
+  {
+    "movementId": 2,
+    "date": "2025-11-14",
+    "movementType": "Débito",
+    "value": 575.00,
+    "balance": 2425.00,
+    "accountNumber": "478758"
+  }
+]
 ```
 
 ---
@@ -282,7 +329,7 @@ bankapp/
 ├── src/
 │   ├── main/
 │   │   ├── java/com/ntt/challenge/bankapp/
-│   │   │   ├── domain/                    # 💎 Capa de Dominio
+│   │   │   ├── domain/                    # 💎 Capa de Dominio (Núcleo - Sin dependencias)
 │   │   │   │   ├── model/                 # Modelos puros (POJOs)
 │   │   │   │   │   ├── Account.java
 │   │   │   │   │   ├── Customer.java
@@ -292,10 +339,6 @@ bankapp/
 │   │   │   │   │   ├── AccountRepository.java
 │   │   │   │   │   ├── CustomerRepository.java
 │   │   │   │   │   └── MovementRepository.java
-│   │   │   │   ├── service/               # Contratos de servicios
-│   │   │   │   │   ├── AccountService.java
-│   │   │   │   │   ├── CustomerService.java
-│   │   │   │   │   └── MovementService.java
 │   │   │   │   ├── policy/                # Políticas de negocio
 │   │   │   │   │   ├── MovementPolicy.java
 │   │   │   │   │   └── DefaultMovementPolicy.java
@@ -303,12 +346,12 @@ bankapp/
 │   │   │   │       ├── InsufficientBalanceException.java
 │   │   │   │       └── AccountTypeAlreadyExistsException.java
 │   │   │   │
-│   │   │   ├── application/               # 🎯 Capa de Aplicación
+│   │   │   ├── application/               # 🎯 Capa de Aplicación (Casos de Uso)
 │   │   │   │   ├── usecase/               # Casos de uso
 │   │   │   │   │   ├── AccountUseCase.java
 │   │   │   │   │   ├── CustomerUseCase.java
 │   │   │   │   │   └── MovementUseCase.java
-│   │   │   │   ├── dto/                   # Data Transfer Objects
+│   │   │   │   ├── dto/                   # Data Transfer Objects internos
 │   │   │   │   │   ├── AccountDto.java
 │   │   │   │   │   ├── CustomerDto.java
 │   │   │   │   │   └── MovementDto.java
@@ -320,11 +363,29 @@ bankapp/
 │   │   │   │       ├── MovementDtoMapper.java
 │   │   │   │       └── MovementEntityMapper.java
 │   │   │   │
-│   │   │   └── infrastructure/            # 🌐 Capa de Infraestructura
-│   │   │       ├── entrypoint/            # Controladores REST
-│   │   │       │   ├── AccountController.java
-│   │   │       │   ├── CustomerController.java
-│   │   │       │   └── MovementController.java
+│   │   │   └── infrastructure/            # 🌐 Capa de Infraestructura (Adapters)
+│   │   │       ├── api/                   # 🤖 CÓDIGO GENERADO por OpenAPI
+│   │   │       │   ├── ClientesApi.java           # Interface generada
+│   │   │       │   ├── CuentasApi.java            # Interface generada
+│   │   │       │   ├── MovimientosApi.java        # Interface generada
+│   │   │       │   ├── ApiUtil.java               # Utilidades
+│   │   │       │   └── model/                     # DTOs generados
+│   │   │       │       ├── CustomerRequest.java
+│   │   │       │       ├── CustomerResponse.java
+│   │   │       │       ├── CustomerUpdateRequest.java
+│   │   │       │       ├── AccountRequest.java
+│   │   │       │       ├── AccountResponse.java
+│   │   │       │       ├── AccountUpdateRequest.java
+│   │   │       │       ├── MovementRequest.java
+│   │   │       │       ├── MovementResponse.java
+│   │   │       │       ├── ErrorResponse.java
+│   │   │       │       └── ValidationErrorResponse.java
+│   │   │       │
+│   │   │       ├── controller/            # Implementaciones de APIs generadas
+│   │   │       │   ├── CustomerApiController.java  # Implementa ClientesApi
+│   │   │       │   ├── AccountApiController.java   # Implementa CuentasApi
+│   │   │       │   └── MovementApiController.java  # Implementa MovimientosApi
+│   │   │       │
 │   │   │       ├── repository/            # Implementaciones JPA
 │   │   │       │   ├── AccountJpaRepository.java
 │   │   │       │   ├── CustomerJpaRepository.java
@@ -333,11 +394,13 @@ bankapp/
 │   │   │       │       ├── AccountRepositoryAdapter.java
 │   │   │       │       ├── CustomerRepositoryAdapter.java
 │   │   │       │       └── MovementRepositoryAdapter.java
+│   │   │       │
 │   │   │       ├── persistence/           # Entidades JPA
 │   │   │       │   └── entity/
 │   │   │       │       ├── AccountEntity.java
 │   │   │       │       ├── CustomerEntity.java
 │   │   │       │       └── MovementEntity.java
+│   │   │       │
 │   │   │       └── config/                # Configuraciones
 │   │   │           ├── SecurityConfig.java
 │   │   │           ├── DomainConfig.java
@@ -345,7 +408,7 @@ bankapp/
 │   │   │
 │   │   └── resources/
 │   │       ├── application.properties
-│   │       └── openapi.yaml
+│   │       └── openapi.yaml              # ⭐ Especificación OpenAPI (Contract-First)
 │   │
 │   └── test/
 │       ├── java/com/ntt/challenge/bankapp/
@@ -354,8 +417,13 @@ bankapp/
 │       └── resources/
 │           └── application.properties     # Config H2 para tests
 │
+├── target/
+│   └── generated-sources/                 # Código auto-generado
+│       └── openapi/                       # Salida del OpenAPI Generator
+│           └── src/main/java/.../infrastructure/api/
+│
 ├── docker-compose.yml
-├── pom.xml
+├── pom.xml                                # Incluye OpenAPI Generator Maven Plugin
 └── README.md
 ```
 
@@ -363,13 +431,31 @@ bankapp/
 
 ## Principios de Diseño
 
-### 1. **Arquitectura Hexagonal (Ports & Adapters)**
+### 1. **Contract-First con OpenAPI**
+
+El proyecto adopta un enfoque **Contract-First**:
+
+1. **Especificación OpenAPI** (`openapi.yaml`) define el contrato de la API
+2. **OpenAPI Generator** genera automáticamente:
+   - Interfaces de API (`ClientesApi`, `CuentasApi`, `MovimientosApi`)
+   - Modelos de Request/Response
+   - Validaciones de Bean Validation
+3. **Controladores** implementan las interfaces generadas
+4. **Compilador** garantiza que la implementación cumpla el contrato
+
+**Beneficios:**
+- ✅ Documentación siempre sincronizada con el código
+- ✅ Validación en tiempo de compilación
+- ✅ Generación automática de Swagger UI
+- ✅ Contratos claros entre frontend y backend
+
+### 2. **Arquitectura Hexagonal (Ports & Adapters)**
 
 - **Dominio puro**: Sin dependencias de frameworks
-- **Puertos**: Interfaces que definen contratos
+- **Puertos**: Interfaces que definen contratos (`*Repository.java` en domain)
 - **Adaptadores**: Implementaciones concretas de infraestructura
 
-### 2. **Dependency Inversion Principle (DIP)**
+### 3. **Dependency Inversion Principle (DIP)**
 
 ```
 Infrastructure → Application → Domain
@@ -379,25 +465,42 @@ Infrastructure → Application → Domain
 
 Las capas externas dependen de las internas, **nunca al revés**.
 
-### 3. **Separation of Concerns**
+**Flujo de Dependencias con OpenAPI:**
+```
+OpenAPI Spec (openapi.yaml)
+        ↓
+  Generated Code (target/)
+        ↓
+   Controllers (implementan interfaces generadas)
+        ↓
+    Use Cases (lógica de negocio)
+        ↓
+   Domain (núcleo puro)
+```
+
+### 4. **Separation of Concerns**
 
 - **Domain Models**: POJOs sin anotaciones JPA/Jackson
-- **JPA Entities**: Solo en infraestructura
-- **DTOs**: Para entrada/salida de controladores
-- **Mappers**: Conversión entre capas
+- **JPA Entities**: Solo en infraestructura/persistence
+- **OpenAPI DTOs**: Generados automáticamente para la API
+- **Internal DTOs**: Para comunicación entre capas
+- **Mappers**: Conversión entre capas (OpenAPI ↔ Internal ↔ Domain ↔ Entity)
 
-### 4. **Single Responsibility**
+### 5. **Single Responsibility**
 
+- **OpenAPI Spec**: Define solo el contrato de la API
+- **Controllers**: Solo implementan interfaces y mapean datos
 - **Use Cases**: Orquestan la lógica de negocio
 - **Policies**: Encapsulan reglas de negocio complejas
 - **Repositories**: Solo acceso a datos
 
-### 5. **Clean Code**
+### 6. **Clean Code**
 
 - Nombres descriptivos
 - Métodos pequeños y cohesivos
-- Validaciones tempranas
+- Validaciones tempranas (Bean Validation en OpenAPI DTOs)
 - Manejo explícito de errores
+- Código generado separado del código manual
 
 ---
 
@@ -453,22 +556,103 @@ Por defecto, **todos los endpoints están abiertos** para facilitar el desarroll
 
 ## 🔄 Flujo de Datos Completo
 
-### Ejemplo: Registro de Movimiento Bancario
+### Ejemplo: Registro de Movimiento Bancario (Contract-First)
 
-1. **Cliente** envía `POST /api/v1/movements` con `MovementDto`
-2. **Controller** valida DTO con `@Valid`
-3. **Mapper** convierte `MovementDto → Movement` (domain)
-4. **Use Case** orquesta:
+1. **OpenAPI Spec** (`openapi.yaml`) define el contrato:
+   ```yaml
+   POST /movements
+   requestBody: MovementRequest
+   response: MovementResponse
+   ```
+
+2. **Maven Build** ejecuta OpenAPI Generator:
+   - Genera `MovimientosApi` interface
+   - Genera `MovementRequest` y `MovementResponse` DTOs
+   - Agrega validaciones automáticas
+
+3. **Cliente** envía `POST /api/v1/movements` con JSON
+   - Spring valida automáticamente contra `MovementRequest`
+
+4. **MovementApiController** (implementa `MovimientosApi`):
+   - Recibe `Mono<MovementRequest>`
+   - Convierte a `MovementDto` interno
+   - Convierte a `Movement` (domain)
+
+5. **MovementUseCase** orquesta:
    - Consulta cuenta via **Port** → **Adapter** → **JPA Repo**
    - Obtiene último saldo
    - Invoca **Policy** para calcular nuevo saldo
    - Valida reglas de negocio (saldo suficiente)
    - Guarda movimiento via **Port** → **Adapter** → **JPA Repo**
-5. **Mapper** convierte `Movement → MovementDto`
-6. **Controller** retorna respuesta al cliente
+
+6. **Flujo de retorno**:
+   - `Movement` (domain) → `MovementDto` (interno) → `MovementResponse` (OpenAPI)
+   - Controller retorna `Mono<ResponseEntity<MovementResponse>>`
+
+7. **Compilador garantiza** que la respuesta cumpla el contrato OpenAPI
+
+### Ventajas del Flujo Contract-First
+
+- ✅ **Frontend puede generar cliente** desde `openapi.yaml`
+- ✅ **Validaciones consistentes** entre documentación e implementación
+- ✅ **Errores en tiempo de compilación** si se viola el contrato
+- ✅ **Swagger UI auto-actualizado** siempre sincronizado
 
 ---
 
+
+## 🎨 OpenAPI Specification
+
+### Acceso a la Especificación
+
+- **Archivo fuente**: `src/main/resources/openapi.yaml`
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **JSON endpoint**: http://localhost:8080/v3/api-docs
+
+### Generación de Código
+
+El proyecto usa **OpenAPI Generator Maven Plugin** configurado en `pom.xml`:
+
+```xml
+<plugin>
+    <groupId>org.openapitools</groupId>
+    <artifactId>openapi-generator-maven-plugin</artifactId>
+    <version>7.2.0</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+            <configuration>
+                <inputSpec>src/main/resources/openapi.yaml</inputSpec>
+                <generatorName>spring</generatorName>
+                <apiPackage>com.ntt.challenge.bankapp.infrastructure.api</apiPackage>
+                <modelPackage>com.ntt.challenge.bankapp.infrastructure.api.model</modelPackage>
+                <configOptions>
+                    <reactive>true</reactive>
+                    <interfaceOnly>true</interfaceOnly>
+                    <skipDefaultInterface>true</skipDefaultInterface>
+                </configOptions>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+### Regenerar Código
+
+Cada vez que se modifica `openapi.yaml`, ejecuta:
+
+```bash
+./mvnw clean compile
+```
+
+Esto regenera automáticamente:
+- Interfaces de API
+- Modelos de Request/Response
+- Validaciones
+
+---
 
 ## 📧 Contacto
 
@@ -478,6 +662,6 @@ Por defecto, **todos los endpoints están abiertos** para facilitar el desarroll
 ---
 
 <div align="center">
-  <p>Desarrollado usando Clean Architecture y Spring Boot</p>
+  <p>Desarrollado usando Contract-First API Design, Clean Architecture y Spring Boot</p>
   <p>Si te gustó este proyecto, considera darle una estrella ⭐</p>
 </div>

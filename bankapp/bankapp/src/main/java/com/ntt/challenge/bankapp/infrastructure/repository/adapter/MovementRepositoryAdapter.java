@@ -8,6 +8,7 @@ import com.ntt.challenge.bankapp.infrastructure.repository.MovementJpaRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -20,6 +21,14 @@ public class MovementRepositoryAdapter implements MovementRepository {
     public Optional<Movement> findTopByAccountNumberOrderByDateDesc(String accountNumber) {
         return movementJpaRepository.findTopByAccount_AccountNumberOrderByDateDesc(accountNumber)
                 .map(MovementEntityMapper::toDomain);
+    }
+
+    @Override
+    public List<Movement> findByAccountNumber(String accountNumber) {
+        return movementJpaRepository.findByAccount_AccountNumber(accountNumber)
+                .stream()
+                .map(MovementEntityMapper::toDomain)
+                .toList();
     }
 
     @Override
