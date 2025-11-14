@@ -6,13 +6,13 @@ import com.ntt.challenge.bankapp.domain.repository.MovementRepository;
 import com.ntt.challenge.bankapp.infrastructure.persistence.entity.MovementEntity;
 import com.ntt.challenge.bankapp.infrastructure.repository.MovementJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class MovementRepositoryAdapter implements MovementRepository {
 

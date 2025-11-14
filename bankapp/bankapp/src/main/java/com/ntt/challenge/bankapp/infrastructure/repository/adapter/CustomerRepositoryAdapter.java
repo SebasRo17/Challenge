@@ -6,13 +6,13 @@ import com.ntt.challenge.bankapp.domain.repository.CustomerRepository;
 import com.ntt.challenge.bankapp.infrastructure.persistence.entity.CustomerEntity;
 import com.ntt.challenge.bankapp.infrastructure.repository.CustomerJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class CustomerRepositoryAdapter implements CustomerRepository {
 

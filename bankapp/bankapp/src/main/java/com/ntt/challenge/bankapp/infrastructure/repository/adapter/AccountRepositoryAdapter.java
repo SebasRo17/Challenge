@@ -6,13 +6,13 @@ import com.ntt.challenge.bankapp.domain.repository.AccountRepository;
 import com.ntt.challenge.bankapp.infrastructure.persistence.entity.AccountEntity;
 import com.ntt.challenge.bankapp.infrastructure.repository.AccountJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class AccountRepositoryAdapter implements AccountRepository {
 
