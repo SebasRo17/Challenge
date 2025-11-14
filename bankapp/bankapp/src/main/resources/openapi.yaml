@@ -7,6 +7,810 @@ servers:
   - url: http://localhost:8080/api/v1
 
 paths:
+  /customers:
+    get:
+      tags:
+        -Customers
+      summary: Obtener todos los clientes
+      description: Devuelve una lista de todos los clientes registrados en el sistema.
+      operationId: getAllCustomers
+      responses:
+        '200':
+          description: Lista de clientes obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+        '500':
+          description: Error del servidor al obtener los clientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        -Customers
+      summary: Crear un nuevo cliente
+      description: Permite crear un nuevo cliente en el sistema.
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreateRequest'
+      
+      responses:
+        '201':
+        description: Cliente creado exitosamente
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+        '400':
+          description: Solicitud inválida al crear el cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflicto al crear el cliente (por ejemplo, correo electrónico ya existe)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error del servidor al crear el cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /customers/{customerId}:
+    get:
+      tags:
+        -Customers
+      summary: Obtener un cliente por ID
+      description: Devuelve los detalles de un cliente específico utilizando su ID.
+      operationId: getCustomerById
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          description: ID del cliente a obtener
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Cliente obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error del servidor al obtener el cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        -Customers
+      summary: Actualizar un cliente por ID
+      description: Permite actualizar los detalles de un cliente específico utilizando su ID.
+      operationId: getCustomerById
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          description: ID del cliente a actualizar
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Cliente actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Solicitud inválida al actualizar el cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error del servidor al actualizar el cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        -Customers
+      summary: Actualizar un cliente por ID
+      description: Permite actualizar los detalles de un cliente específico utilizando su ID.
+      operationId: updateCustomer
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          description: ID del cliente a actualizar
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Cliente actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Solicitud inválida al actualizar el cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error del servidor al actualizar el cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        -Customers
+      summary: Eliminar un cliente por ID
+      description: Permite eliminar un cliente específico utilizando su ID.
+      operationId: deleteCustomer
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          description: ID del cliente a eliminar
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Cliente eliminado exitosamente
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error del servidor al eliminar el cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+# CUENTAS
+
+/accounts:
+  get:
+    tags:
+      -Accounts
+    summary: Obtener todas las cuentas
+    description: Devuelve una lista de todas las cuentas registradas en el sistema.
+    operationId: getAllAccounts
+    responses:
+      '200':
+        description: Lista de cuentas obtenida exitosamente
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Account'
+      '500':
+        description: Error del servidor al obtener las cuentas
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  post:
+    tags:
+      -Accounts
+    summary: Crear una nueva cuenta
+    description: Permite crear una nueva cuenta en el sistema.
+    operationId: createAccount
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountCreateRequest'
+    responses:
+      '201':
+        description: Cuenta creada exitosamente
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      '400':
+        description: Solicitud inválida al crear la cuenta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '409':
+        description: Conflicto al crear la cuenta (por ejemplo, número de cuenta ya existe)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error del servidor al crear la cuenta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+/accounts/{accountId}:
+  get:
+    tags:
+      -Accounts
+    summary: Obtener una cuenta por ID
+    description: Devuelve los detalles de una cuenta específica utilizando su ID.
+    operationId: getAccountByNumber
+    parameters:
+      - name: accountId
+        in: path
+        required: true
+        description: ID de la cuenta a obtener
+        schema:
+          type: integer
+          format: int64
+    responses:
+      '200':
+        description: Cuenta obtenida exitosamente
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      '404':
+        description: Cuenta no encontrada
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error del servidor al obtener la cuenta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  put:
+    tags:
+      -Accounts
+    summary: Actualizar una cuenta por ID
+    description: Permite actualizar los detalles de una cuenta específica utilizando su ID.
+    operationId: updateAccount
+    parameters:
+      - name: accountId
+        in: path
+        required: true
+        description: ID de la cuenta a actualizar
+        schema:
+          type: integer
+          format: int64
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountUpdateRequest'
+    responses:
+      '200':
+        description: Cuenta actualizada exitosamente
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      '400':
+        description: Solicitud inválida al actualizar la cuenta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '404':
+        description: Cuenta no encontrada
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error del servidor al actualizar la cuenta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+  delete:
+    tags:
+      -Accounts
+    summary: Eliminar una cuenta por ID
+    description: Permite eliminar una cuenta específica utilizando su ID.
+    operationId: deleteAccount
+    parameters:
+      - name: accountId
+        in: path
+        required: true
+        description: ID de la cuenta a eliminar
+        schema:
+          type: integer
+          format: int64
+    responses:
+      '204':
+        description: Cuenta eliminada exitosamente
+      '404':
+        description: Cuenta no encontrada
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error del servidor al eliminar la cuenta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+
+#MOVIMIENTOS
+/movements:
+  post:
+    tags:
+      -Movements
+    summary: Reegistrar un nuevo movimiento
+    description: Permite crear un nuevo movimiento en una cuenta.
+    operationId: createMovement
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MovementCreateRequest'
+    responses:
+      '201': 
+        description: Movimiento registrado exitosamente
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movement'
+      '404':
+        description: Cuenta no encontrada para el movimiento
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '400':
+        description: Solicitud inválida al registrar el movimiento
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '500':
+        description: Error del servidor al registrar el movimiento
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+/movements/account/{accountNumber}:
+    get:
+      tags:
+        - Movimientos
+      summary: Listar movimientos por cuenta
+      description: Obtiene el historial de movimientos de una cuenta específica
+      operationId: getMovementsByAccount
+      parameters:
+        - $ref: '#/components/parameters/AccountNumberParam'
+        - name: startDate
+          in: query
+          description: Fecha inicial del rango (formato YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: Fecha final del rango (formato YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lista de movimientos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovementResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 
 components:
   schemas:
+  #CLIENTE
+    CustomerRequest:
+      type: object
+      required:
+        - name
+        - identifacation
+        - password
+      properties:
+        name:
+          type: string
+          description: Nombre completo del cliente
+          example: Juan Perez
+          minLength: 3
+          maxLength: 100
+        gender:
+          type: string
+          description: Género del cliente
+          example: M
+          enum:
+            - M
+            - F
+            - O
+        address:
+          type: string
+          description: Dirección del cliente
+          example: "Av. Principal 123"
+          maxLength: 200
+        phone:
+          type: string
+          description: Número de teléfono del cliente
+          example: "0987654321"
+          pattern: '^[0-9]{10}$'
+        identifacation:
+          type: string
+          description: Número de identificación del cliente
+          example: "1234567890"
+          pattern: '^(\d{10}|\d{13})$'
+        password:
+          type: string
+          description: Contraseña del cliente
+          example: "12345"
+          pattern: '^[0-9]+$'
+          minLength: 4
+        status:
+          type: boolean
+          description: Estado del cliente
+          example: true
+          default: true
+
+    CustomerUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+        address:
+          type: string
+          maxLength: 200
+        phone:
+          type: string
+          pattern: '^[0-9]{10}$'
+        password:
+          type: string
+          pattern: '^[0-9]+$'
+          minLength: 4
+        status:
+          type: boolean
+
+    CustomerResponse:
+      type: object
+      properties:
+        customerId:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: Juan Perez
+        gender:
+          type: string
+          example: M
+        address:
+          type: string
+          example: "Av. Principal 123"
+        phone:
+          type: string
+          example: "0987654321"
+        identifacation:
+          type: string
+          example: "1234567890"
+        status:
+          type: boolean
+          example: true
+
+#CUENTA
+    AccountRequest:
+      type: object
+      required:
+        - accountNumber
+        - accountType
+        - customerId
+      properties:
+        accountNumber:
+          type: string
+          description: Número unico de cuenta bancaria
+          example: "478758"
+          pattern: '^[0-9]+$'
+        accountType:
+          type: string
+          description: Tipo de cuenta bancaria
+          example: SAVINGS
+          enum:
+            - SAVINGS
+            - CHECKING
+        initialBalance:
+          type: number
+          format: double
+          description: Balance inicial de la cuenta
+          example: 1000.00
+          minimum: 0
+          default: 0
+        status:
+          type: boolean
+          description: Estado de la cuenta
+          example: true
+          default: true
+        customerId:
+          type: integer
+          format: int64
+          description: ID del cliente propietario de la cuenta
+          example: 1
+
+    AccountUpdateRequest:
+      type: object
+      properties:
+        accountType:
+          type: string
+          enum:
+            - SAVINGS
+            - CHECKING
+        status:
+          type: boolean
+
+    AccountResponse:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+          example: "478758"
+        accountType:
+          type: string
+          example: SAVINGS
+        initialBalance:
+          type: number
+          format: double
+          example: 1500.00
+        status:
+          type: boolean
+          example: true
+        customerId:
+          type: integer
+          format: int64
+          example: 1
+
+#MOVIMIENTOS
+    MovementRequest:
+      type: object
+      required:
+        - accountNumber
+        - movementType
+        - amount
+      properties:
+        accountNumber:
+          type: string
+          description: Número de cuenta bancaria asociada al movimiento
+          example: "478758"
+          pattern: '^[0-9]+$'
+        movementType:
+          type: string
+          description: Tipo de movimiento bancario
+          example: DEPOSIT
+          enum:
+            - DEPOSIT
+            - WITHDRAWAL
+        amount:
+          type: number
+          format: double
+          description: Monto del movimiento
+          example: 500.00
+          minimum: 0.01
+
+    MovementResponse:
+      type: object
+      properties:
+        movementId:
+          type: integer
+          format: int64
+          example: 1
+        date:
+          type: string
+          format: date
+          description: Fecha del movimiento
+          example: "2024-01-15"
+        movementType:
+          type: string
+          example: DEPOSIT
+        value:
+          type: number
+          format: double
+          example: 575.00
+        balance:
+          type: number
+          format: double
+          description: Saldo resultante después del movimiento
+          example: 425.00
+        accountNumber:
+          type: string
+          example: "478758"
+
+#ERRORES
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Marca de tiempo del error
+          example: "2024-01-15T10:00:00Z"
+        status:
+          type: integer
+          format: int32
+          description: Código de estado HTTP del error
+          example: 400
+        error:
+          type: string
+          description: Descripción breve del error
+          example: "Bad Request"
+        message:
+          type: string
+          description: Mensaje detallado del error
+          example: "El número de identificación ya existe."
+    
+    ValidationErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Descripción breve del error de validación
+          example: "Datos de Entrada Inválidos"
+        mensajes:
+          type: array
+          description: Lista de mensajes de error de validación
+          items:
+            type: string
+          example:
+            - "name: El campo 'name' debe tener entre 3 y 100 caracteres."
+            - "identifacation: El campo 'identifacation' debe tener 10 o 13 dígitos."
+
+#PARÁMETROS
+  parameters:
+    CustomerIdParam:
+      name: customerId
+      in: path
+      description: ID del cliente
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+
+    AccountNumberParam:
+      name: accountNumber
+      in: path
+      description: Número unico de cuenta bancaria
+      required: true
+      schema:
+        type: string
+        example: "478758"
+
+#RESPUESTAS COMUNES
+  responses:
+    BadRequest:
+      description: Peticion inválida - datos incorrectos o faltantes
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - $ref: '#/components/schemas/ValidationErrorResponse'
+          examples:
+            invalidInput:
+              summary: Ejemplo de respuesta de entrada inválida
+              value:
+                error: "Datos de Entrada Inválidos"
+                mensajes:
+                  - "name: El campo 'name' debe tener entre 3 y 100 caracteres."
+                  - "identifacation: El campo 'identifacation' debe tener 10 o 13 dígitos."
+            saldoInsuficiente:
+              summary: Ejemplo de respuesta de saldo insuficiente
+              value:
+                timestamp: "2024-01-15T10:00:00Z"
+                status: 400
+                error: "Bad Request"
+                message: "Saldo insuficiente para realizar el retiro."
+    
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            timestamp: "2024-01-15T10:00:00Z"
+            status: 404
+            error: "Not Found"
+            message: "Cliente no encontrado con el ID proporcionado."
+
+    Conflict:
+      description: Conflicto - recurso ya existe o regla de negocio violada
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            identificacionDuplicada:
+              summary: Ejemplo de respuesta de identificación duplicada
+              value:
+                timestamp: "2024-01-15T10:00:00Z"
+                status: 409
+                error: "Conflict"
+                message: "El número de identificación ya existe."
+            cuentaDuplicada:
+              summary: Ejemplo de respuesta de cuenta duplicada
+              value:
+                timestamp: "2024-01-15T10:00:00Z"
+                status: 409
+                error: "Conflict"
+                message: "El número de cuenta ya existe."
+
+    InternalServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            timestamp: "2024-01-15T10:00:00Z"
+            status: 500
+            error: "Internal Server Error"
+            message: "Ocurrió un error inesperado en el servidor."
